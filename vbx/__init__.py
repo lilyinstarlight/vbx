@@ -1,2 +1,2 @@
-name = "vbx"
-version = "0.0a0"
+name = 'vbx'
+version = '0.0a0'
