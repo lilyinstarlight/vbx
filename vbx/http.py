@@ -38,7 +38,7 @@ class MessageFlowHandler(FlowHandler):
 	pass
 
 
-routes.update({'/': IndexPage, '/calls/' + alias: CallHandler, '/msgs/' + alias: MessageHandler, '/flow/call/' + alias + alias: CallFlowHandler, '/flow/msg/' + alias: MessageFlowHandler})
+routes.update({'/': IndexPage, '/calls/' + alias: CallHandler, '/msgs/' + alias: MessageHandler, '/flow/call/' + alias: CallFlowHandler, '/flow/msg/' + alias: MessageFlowHandler})
 error_routes.update(json.new_error())
 
 

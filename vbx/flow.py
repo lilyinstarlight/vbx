@@ -1,5 +1,6 @@
 class Flow:
-    next = None
+    def __init__(self, next=None):
+	self.next = next
 
     def dial(self):
 	raise NotImplementedError
