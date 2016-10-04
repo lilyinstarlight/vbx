@@ -1,2 +1,8 @@
 class Flow:
-    pass
+    next = None
+
+    def dial(self):
+	raise NotImplementedError
+
+    def send(self, message):
+	raise NotImplementedError
