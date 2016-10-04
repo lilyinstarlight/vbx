@@ -1,4 +1,7 @@
 class Device:
+    def online(self):
+	return False
+
     def dial(self):
 	raise NotImplementedError
 
