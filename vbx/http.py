@@ -1,4 +1,7 @@
-from lib import web, file, json, page
+import web
+import web.file
+import web.json
+import web.page
 
 
 alias = '([a-zA-Z0-9._-]+)'
@@ -9,12 +12,12 @@ routes = {}
 error_routes = {}
 
 
-class IndexPage(page.PageHandler):
+class IndexPage(web.page.PageHandler):
     directory = os.path.dirname(__file__) + '/html'
     page = 'index.html'
 
 
-class AccountHandler(json.JSONHandler):
+class AccountHandler(web.json.JSONHandler):
 	pass
 
 
@@ -39,7 +42,7 @@ class MessageFlowHandler(FlowHandler):
 
 
 routes.update({'/': IndexPage, '/calls/' + alias: CallHandler, '/msgs/' + alias: MessageHandler, '/flow/call/' + alias: CallFlowHandler, '/flow/msg/' + alias: MessageFlowHandler})
-error_routes.update(json.new_error())
+error_routes.update(web.json.new_error())
 
 
 def start():
