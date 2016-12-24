@@ -9,3 +9,4 @@ from .record import Record
 from .redirect import Redirect
 from .say import Say
 from .sip import SIP
+from .voicemail import Voicemail

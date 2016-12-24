@@ -1,4 +1,5 @@
 import vbx
 
 class SMS(vbx.Device):
-    pass
+    def online(self):
+	return False

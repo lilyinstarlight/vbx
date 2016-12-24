@@ -1,4 +1,5 @@
 import vbx
 
 class Email(vbx.Device):
-    pass
+    def online(self):
+	return False
