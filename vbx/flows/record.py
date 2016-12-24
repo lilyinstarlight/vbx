@@ -1,4 +1,5 @@
 import vbx
 
 class Record(vbx.Flow):
-    pass
+    def dial(self, event, response):
+	response.record()

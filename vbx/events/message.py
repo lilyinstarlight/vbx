@@ -1,3 +1,5 @@
+import twilio.twiml
+
 import vbx
 
 class Message(vbx.Event):
@@ -19,5 +21,10 @@ class Message(vbx.Event):
 	except KeyError:
 	    self.media_url = None
 
-    def handle(self, flow):
-	return flow.send(self, self.body)
+    def handle(self, flows):
+	response = twilio.twiml.Response()
+
+	for flow in flows:
+	    flow.send(self, self.body, response)
+
+	return response

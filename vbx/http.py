@@ -1,3 +1,5 @@
+import twilio.rest
+
 import web
 import web.file
 import web.json
@@ -5,11 +7,14 @@ import web.page
 
 import vbx.config
 import vbx.events
+import vbx.devices.browser
 
 
 alias = '([a-zA-Z0-9._-]+)'
 
 http = None
+
+client = twilio.rest.Client(username=vbx.config.auth[0], password=vbx.config.auth[1])
 
 routes = {}
 error_routes = {}
@@ -21,27 +26,69 @@ class IndexPage(web.page.PageHandler):
 
 
 class AccountHandler(web.json.JSONHandler):
-	pass
+    def call_encode(self, call):
+	return {'annotation': call.annotation, 'date': call.date_created, 'direction': call.direction, 'duration': call.duration, 'from': call.from_formatted, 'to': call.to}
+
+    def message_encode(self, call):
+	return {'body': instance.body, 'date': instance.date_created, 'direction': instance.direction, 'from': instance.from_, 'to': instance.to}
+
+
+class BrowserHandler(AccountHandler):
+    def do_get(self):
+	return {'username': vbx.config.auth[0], 'password': vbx.config.auth[1]}
+
+    def do_post(self):
+	vbx.devices.browser.online = self.request.body['online']
+
+
+class CallListHandler(AccountHandler):
+    def do_get(self):
+	return [self.call_encode(call) for call in client.calls.stream()]
 
 
 class CallHandler(AccountHandler):
-	pass
+    def do_get(self):
+	call = client.calls.get(self.groups[0])
+
+	return self.call_encode(call.fetch())
+
+    def do_delete(self):
+	call = client.calls.get(self.groups[0])
+
+	call.delete()
+
+	return 204, ''
+
+
+class MessageListHandler(AccountHandler):
+    def do_get(self):
+	return [self.message_encode(message) for message in client.messages.stream()]
 
 
 class MessageHandler(AccountHandler):
-	pass
+    def do_get(self):
+	message = client.messages.get(self.groups[0])
+
+	return self.message_encode(message.fetch())
+
+    def do_delete(self):
+	message = client.message.get(self.groups[0])
+
+	message.delete()
+
+	return 204, ''
 
 
 class FlowHandler(web.form.FormHandler):
-	pass
+    pass
 
 
 class CallFlowHandler(FlowHandler):
     def do_post(self):
-	self.event = new vbx.events.Call(self.body)
+	self.event = vbx.events.Call(self.body)
 
 	try:
-	    return 200, str(self.event.handle(vbx.config.calls[int(self.groups[0])]))
+	    return 200, str(self.event.handle(vbx.config.calls[self.groups[0]]))
 	except ValueError:
 	    raise web.HTTPError(400)
 	except IndexError:
@@ -50,17 +97,17 @@ class CallFlowHandler(FlowHandler):
 
 class MessageFlowHandler(FlowHandler):
     def do_post(self):
-	self.event = new vbx.events.Message(self.body)
+	self.event = vbx.events.Message(self.body)
 
 	try:
-	    return 200, str(self.event.handle(vbx.config.messages[int(self.groups[0])]))
+	    return 200, str(self.event.handle(vbx.config.messages[self.groups[0]]))
 	except ValueError:
 	    raise web.HTTPError(400)
 	except IndexError:
 	    raise web.HTTPError(404)
 
 
-routes.update({'/': IndexPage, '/calls/' + alias: CallHandler, '/msgs/' + alias: MessageHandler, '/flow/voice/' + alias: CallFlowHandler, '/flow/msg/' + alias: MessageFlowHandler})
+routes.update({'/': IndexPage, '/browser': BrowserHandler, '/calls/': CallListHandler, '/calls/' + alias: CallHandler, '/msgs/': MessageListHandler, '/msgs/' + alias: MessageHandler, '/flow/voice/' + alias: CallFlowHandler, '/flow/msg/' + alias: MessageFlowHandler})
 error_routes.update(web.json.new_error())
 
 

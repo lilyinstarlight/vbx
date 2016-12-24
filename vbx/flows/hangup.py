@@ -1,4 +1,5 @@
 import vbx
 
 class Hangup(vbx.Flow):
-    pass
+    def dial(self, event, response):
+	response.hangup()

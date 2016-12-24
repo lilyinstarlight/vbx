@@ -1,3 +1,5 @@
+import twilio.twiml
+
 import vbx
 
 class Call(vbx.Event):
@@ -18,5 +20,10 @@ class Call(vbx.Event):
 	except KeyError:
 	    self.caller_name = None
 
-    def handle(self, flow):
-	return flow.dial(self)
+    def handle(self, flows):
+	response = twilio.twiml.Response()
+
+	for flow in flows:
+	    flow.dial(self, response)
+
+	return response

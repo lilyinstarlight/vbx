@@ -35,6 +35,7 @@ flows_spec = importlib.util.spec_from_file_location('flows', args.flows)
 flows = importlib.util.module_from_spec(flows_spec)
 flows_spec.loader.exec_module(flows)
 
+config.auth = flows.auth
 config.calls = flows.calls
 config.messages = flows.messages
 

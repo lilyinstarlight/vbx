@@ -7,6 +7,6 @@ from .pause import Pause
 from .play import Play
 from .record import Record
 from .redirect import Redirect
+from .reject import Reject
 from .say import Say
-from .sip import SIP
 from .voicemail import Voicemail
