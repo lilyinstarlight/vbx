@@ -10,5 +10,9 @@ class Message(vbx.Flow):
     def dial(self, event, response):
 	response.message(self.message, to=self.to)
 
+	self.completed = True
+
     def send(self, event, message, response):
 	response.message(self.message, to=self.to)
+
+	self.completed = True

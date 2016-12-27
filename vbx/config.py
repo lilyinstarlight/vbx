@@ -17,11 +17,11 @@ auth = ('AC0123456789abcdef0123456789abcdef', '0123456789abcdef0123456789abcdef'
 
 # call flows (make sure they connect properly by key)
 calls = {
-    'call': [vbx.flows.Device(devices=[vbx.devices.Browser()])], vbx.flows.Redirect('phone')],
+    'call': [vbx.flows.Device(devices=[vbx.devices.Browser()], next='phone')],
     'phone': [vbx.flows.Dial(number='+18005555555')],
 }
 
 # message flows (make sure they connect properly by key)
 messages = {
-    'message': [vbx.flows.Device(devices=[vbx.devices.Browser(), vbx.devices.XMPP(jid='5555555@5555555.com'), vbx.devices.SMS(number='+18005555555')])],
+    'message': [vbx.flows.Device(devices=[vbx.devices.Browser(), vbx.devices.SMS(number='+18005555555')])],
 }

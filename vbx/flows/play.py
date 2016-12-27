@@ -10,3 +10,5 @@ class Play(vbx.Flow):
 
     def dial(self, event, response):
 	response.play(self.url, self.digits, loop=self.loop)
+
+	self.completed = True

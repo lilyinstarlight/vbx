@@ -1,6 +1,5 @@
 from .device import Device
 from .dial import Dial
-from .gather import Gather
 from .hangup import Hangup
 from .message import Message
 from .pause import Pause
@@ -9,4 +8,3 @@ from .record import Record
 from .redirect import Redirect
 from .reject import Reject
 from .say import Say
-from .voicemail import Voicemail

@@ -27,3 +27,5 @@ class Dial(vbx.Flow):
 
 	if self.sip:
 	    dial.sip(self.sip)
+
+	self.completed = True

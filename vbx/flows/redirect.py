@@ -9,5 +9,9 @@ class Redirect(vbx.Flow):
     def dial(self, event, response):
 	response.redirect(self.url)
 
+	self.completed = True
+
     def send(self, event, message, response):
 	response.redirect(self.url)
+
+	self.completed = True

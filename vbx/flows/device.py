@@ -10,10 +10,12 @@ class Device(vbx.Flow):
 	for device in self.devices:
 	    if device.online():
 		device.dial(event, response)
+		self.completed = True
 		break
 
     def send(self, event, message, response):
 	for device in self.devices:
 	    if device.online():
 		device.send(event, message, response)
+		self.completed = True
 		break

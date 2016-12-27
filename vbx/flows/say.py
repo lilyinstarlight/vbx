@@ -11,3 +11,5 @@ class Say(vbx.Flow):
 
     def dial(self, event, response):
 	response.say(self.text, voice=self.voice, language=self.language, loop=self.loop)
+
+	self.completed = True

@@ -8,3 +8,5 @@ class Reject(vbx.Flow):
 
     def dial(self, event, response):
 	response.reject(self.reason)
+
+	self.completed = True

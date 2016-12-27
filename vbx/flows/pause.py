@@ -8,3 +8,5 @@ class Pause(vbx.Flow):
 
     def dial(self, event, response):
 	response.pause(length=self.length)
+
+	self.completed = True
