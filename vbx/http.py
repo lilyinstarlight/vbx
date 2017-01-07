@@ -133,6 +133,7 @@ class MessageFlowHandler(FlowHandler):
 
 
 routes.update({'/': IndexPage, '/browser': BrowserHandler, '/contacts/': ContactListHandler, '/contacts/' + alias: ContactHandler, '/calls/': CallListHandler, '/calls/' + alias: CallHandler, '/msgs/': MessageListHandler, '/msgs/' + alias: MessageHandler, '/flow/voice/' + alias: CallFlowHandler, '/flow/msg/' + alias: MessageFlowHandler})
+routes.update(web.file.new(config.resource, '/res'))
 error_routes.update(web.json.new_error())
 
 

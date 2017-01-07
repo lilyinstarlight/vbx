@@ -11,6 +11,7 @@ httplog = '/var/log/vbx/http.log'
 # template directory to use
 import os.path
 template = os.path.dirname(__file__) + '/html'
+resource = os.path.dirname(__file__) + '/res'
 
 # account sid and auth token
 auth = ('AC0123456789abcdef0123456789abcdef', '0123456789abcdef0123456789abcdef')
