@@ -9,9 +9,6 @@ class Email(vbx.Device):
 	self.from_ = from_
 	self.to = to
 
-    def online(self):
-	return True
-
     def send(self, event, message, response):
 	msg = MIMEText(message)
 
