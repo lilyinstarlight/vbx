@@ -2,6 +2,6 @@ import vbx
 
 class Hangup(vbx.Flow):
     def dial(self, event, response):
-	response.hangup()
+        response.hangup()
 
-	self.completed = True
+        self.completed = True

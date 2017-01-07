@@ -2,6 +2,6 @@ import vbx
 
 class Record(vbx.Flow):
     def dial(self, event, response):
-	response.record()
+        response.record()
 
-	self.completed = True
+        self.completed = True

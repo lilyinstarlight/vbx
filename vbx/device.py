@@ -1,9 +1,9 @@
 class Device:
     def online(self):
-	return None
+        return None
 
     def dial(self, event, response):
-	raise NotImplementedError
+        raise NotImplementedError
 
     def send(self, event, message, response):
-	raise NotImplementedError
+        raise NotImplementedError

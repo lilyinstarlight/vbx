@@ -1,11 +1,11 @@
 class Flow:
     def __init__(self, next=None):
-	self.next = next
+        self.next = next
 
-	self.completed = False
+        self.completed = False
 
     def dial(self, event, response):
-	raise NotImplementedError
+        raise NotImplementedError
 
     def send(self, event, message, response):
-	raise NotImplementedError
+        raise NotImplementedError

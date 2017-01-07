@@ -98,6 +98,8 @@ main {
 .contacts {
 	background: #555;
 	flex-grow: 1;
+
+	display: none;
 }
 
 .contacts ul {
@@ -137,6 +139,8 @@ main {
 	right: 0.5em;
 	background: #111;
 	text-align: center;
+
+	display: none;
 }
 
 .phone::before {

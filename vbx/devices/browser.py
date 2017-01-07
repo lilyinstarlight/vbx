@@ -1,15 +1,17 @@
 import twilio.twiml
 
+import vbx
+
 online = False
 
 class Browser(vbx.Device):
     def online(self):
-	global online
+        global online
 
-	return online
+        return online
 
     def dial(self, event, response):
-	return twilio.twiml.Client('browser')
+        return twilio.twiml.Client('browser')
 
     def send(self, event, message, response):
-	return None
+        return None

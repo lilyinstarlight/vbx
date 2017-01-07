@@ -9,10 +9,9 @@
 	</head>
 
 	<body>
-		<header>
-			<button class="left active">+1 (800) 555-5555</button>
-			<button class="right">Phone</button>
-			<button class="right">Contacts</button>
+		<header id="buttons">
+			<button id="button_phone" class="right" onclick="select('toggle')">Phone</button>
+			<button id="button_contacts" class="right" onclick="select('contacts')">Contacts</button>
 		</header>
 
 		<main>
@@ -31,36 +30,36 @@
 				<input type="text" placeholder="Enter Message Here..."/>
 			</div>
 
-			<div class="contacts">
+			<div id="contacts" class="contacts">
 				<ul>
 					<li><span>BusinessName</span><span>+1 (800) 555-5555</span><button>Call</button><button>Message</button></li>
 				</ul>
 			</div>
 
-			<div class="phone">
-				<p>Dial a Number</p>
+			<div id="phone" class="phone">
+				<p id="status">Dial a Number</p>
 
 				<table>
 					<tbody>
 						<tr>
-							<td><button>1</button></td>
-							<td><button>2<span>ABC</span></button></td>
-							<td><button>3<span>DEF</span></button></td>
+							<td><button onclick="click('1')">1</button></td>
+							<td><button onclick="click('2')">2<span>ABC</span></button></td>
+							<td><button onclick="click('3')">3<span>DEF</span></button></td>
 						</tr>
 						<tr>
-							<td><button>4<span>GHI</span></button></td>
-							<td><button>5<span>JKL</span></button></td>
-							<td><button>6<span>MNO</span></button></td>
+							<td><button onclick="click('4')">4<span>GHI</span></button></td>
+							<td><button onclick="click('5')">5<span>JKL</span></button></td>
+							<td><button onclick="click('6')">6<span>MNO</span></button></td>
 						</tr>
 						<tr>
-							<td><button>7<span>PQRS</span></button></td>
-							<td><button>8<span>TUV</span></button></td>
-							<td><button>9<span>WXYZ</span></button></td>
+							<td><button onclick="click('7')">7<span>PQRS</span></button></td>
+							<td><button onclick="click('8')">8<span>TUV</span></button></td>
+							<td><button onclick="click('9')">9<span>WXYZ</span></button></td>
 						</tr>
 						<tr>
-							<td><button>*</button></td>
-							<td><button>0<span>+</span></button></td>
-							<td><button>#</button></td>
+							<td><button onclick="click('*')">*</button></td>
+							<td><button onclick="click('0')">0<span>+</span></button></td>
+							<td><button onclick="click('#')">#</button></td>
 						</tr>
 					</tbody>
 				</table>

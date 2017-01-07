@@ -27,81 +27,81 @@ class IndexPage(web.page.PageHandler):
 
 class AccountHandler(web.json.JSONHandler):
     def call_encode(self, call):
-	return {'annotation': call.annotation, 'date': call.date_created, 'direction': call.direction, 'duration': call.duration, 'from': call.from_formatted, 'to': call.to}
+        return {'annotation': call.annotation, 'date': call.date_created, 'direction': call.direction, 'duration': call.duration, 'from': call.from_formatted, 'to': call.to}
 
     def message_encode(self, call):
-	return {'body': instance.body, 'date': instance.date_created, 'direction': instance.direction, 'from': instance.from_, 'to': instance.to}
+        return {'body': instance.body, 'date': instance.date_created, 'direction': instance.direction, 'from': instance.from_, 'to': instance.to}
 
 
 class BrowserHandler(AccountHandler):
     def do_get(self):
-	return {'username': vbx.config.auth[0], 'password': vbx.config.auth[1]}
+        return {'username': vbx.config.auth[0], 'password': vbx.config.auth[1]}
 
     def do_post(self):
-	vbx.devices.browser.online = self.request.body['online']
+        vbx.devices.browser.online = self.request.body['online']
 
 
 class ContactListHandler(AccountHandler):
     def do_get(self):
-	return config.contacts
+        return config.contacts
 
 
 class ContactHandler(AccountHandler):
     def do_get(self):
-	try:
-	    return config.contacts[self.groups[0]]
-	except:
-	    raise web.HTTPError(404)
+        try:
+            return config.contacts[self.groups[0]]
+        except:
+            raise web.HTTPError(404)
 
 
 class CallListHandler(AccountHandler):
     def do_get(self):
-	return [self.call_encode(call) for call in client.calls.stream()]
+        return [self.call_encode(call) for call in client.calls.stream()]
 
 
 class CallHandler(AccountHandler):
     def do_get(self):
-	try:
-	    call = client.calls.get(self.groups[0])
+        try:
+            call = client.calls.get(self.groups[0])
 
-	    return self.call_encode(call.fetch())
-	except:
-	    raise web.HTTPError(404)
+            return self.call_encode(call.fetch())
+        except:
+            raise web.HTTPError(404)
 
     def do_delete(self):
-	try:
-	    call = client.calls.get(self.groups[0])
+        try:
+            call = client.calls.get(self.groups[0])
 
-	    call.delete()
+            call.delete()
 
-	    return 204, ''
-	except:
-	    raise web.HTTPError(404)
+            return 204, ''
+        except:
+            raise web.HTTPError(404)
 
 
 class MessageListHandler(AccountHandler):
     def do_get(self):
-	return [self.message_encode(message) for message in client.messages.stream()]
+        return [self.message_encode(message) for message in client.messages.stream()]
 
 
 class MessageHandler(AccountHandler):
     def do_get(self):
-	try:
-	    message = client.messages.get(self.groups[0])
+        try:
+            message = client.messages.get(self.groups[0])
 
-	    return self.message_encode(message.fetch())
-	except:
-	    raise web.HTTPError(404)
+            return self.message_encode(message.fetch())
+        except:
+            raise web.HTTPError(404)
 
     def do_delete(self):
-	try:
-	    message = client.message.get(self.groups[0])
+        try:
+            message = client.message.get(self.groups[0])
 
-	    message.delete()
+            message.delete()
 
-	    return 204, ''
-	except:
-	    raise web.HTTPError(404)
+            return 204, ''
+        except:
+            raise web.HTTPError(404)
 
 
 class FlowHandler(web.form.FormHandler):
@@ -110,26 +110,26 @@ class FlowHandler(web.form.FormHandler):
 
 class CallFlowHandler(FlowHandler):
     def do_post(self):
-	self.event = vbx.events.Call(self.body)
+        self.event = vbx.events.Call(self.body)
 
-	try:
-	    return 200, str(self.event.handle(vbx.config.calls[self.groups[0]]))
-	except ValueError:
-	    raise web.HTTPError(400)
-	except IndexError:
-	    raise web.HTTPError(404)
+        try:
+            return 200, str(self.event.handle(vbx.config.calls[self.groups[0]]))
+        except ValueError:
+            raise web.HTTPError(400)
+        except IndexError:
+            raise web.HTTPError(404)
 
 
 class MessageFlowHandler(FlowHandler):
     def do_post(self):
-	self.event = vbx.events.Message(self.body)
+        self.event = vbx.events.Message(self.body)
 
-	try:
-	    return 200, str(self.event.handle(vbx.config.messages[self.groups[0]]))
-	except ValueError:
-	    raise web.HTTPError(400)
-	except IndexError:
-	    raise web.HTTPError(404)
+        try:
+            return 200, str(self.event.handle(vbx.config.messages[self.groups[0]]))
+        except ValueError:
+            raise web.HTTPError(400)
+        except IndexError:
+            raise web.HTTPError(404)
 
 
 routes.update({'/': IndexPage, '/browser': BrowserHandler, '/contacts/': ContactListHandler, '/contacts/' + alias: ContactHandler, '/calls/': CallListHandler, '/calls/' + alias: CallHandler, '/msgs/': MessageListHandler, '/msgs/' + alias: MessageHandler, '/flow/voice/' + alias: CallFlowHandler, '/flow/msg/' + alias: MessageFlowHandler})

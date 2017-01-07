@@ -2,13 +2,13 @@ import vbx
 
 class Play(vbx.Flow):
     def __init__(self, url=None, digits=None, loop=1, **kwargs):
-	self.url = url
-	self.digits = digits
-	self.loop = loop
+        self.url = url
+        self.digits = digits
+        self.loop = loop
 
-	super().__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def dial(self, event, response):
-	response.play(self.url, self.digits, loop=self.loop)
+        response.play(self.url, self.digits, loop=self.loop)
 
-	self.completed = True
+        self.completed = True

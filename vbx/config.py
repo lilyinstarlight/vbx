@@ -32,5 +32,5 @@ messages = {
 
 # contacts
 contacts = {
-    'BusinessName': '+18005555555'
+    '+18005555555': 'BusinessName'
 }
