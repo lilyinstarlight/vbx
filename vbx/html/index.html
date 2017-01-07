@@ -1,10 +1,275 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>vbx</title>
+		<title>VBX</title>
+
+		<style>
+			body {
+				background: #000;
+				color: #fff;
+				display: flex;
+				padding: 0em;
+				margin: 0em;
+				min-height: 100vh;
+				flex-direction: column;
+			}
+
+			header {
+				background: #111;
+			}
+
+			header::after {
+				content: "";
+				display: block;
+				clear: both;
+			}
+
+			main {
+				position: relative;
+				display: flex;
+				flex-direction: column;
+				flex-grow: 1;
+			}
+
+			.chat {
+				background: #555;
+				display: flex;
+				height: 100%;
+				flex-direction: column;
+				flex-grow: 1;
+			}
+
+			.chat > * {
+				margin: 1em;
+			}
+
+			.chat > div {
+				overflow-y: scroll;
+				padding: 0em 1em;
+				position: relative;
+				flex-grow: 1;
+			}
+
+			.chat time {
+				color: #aaa;
+				display: block;
+				font-size: 0.6em;
+			}
+
+			.chat .you, .chat .me {
+				background: #222;
+				position: relative;
+				padding: 1em;
+				border-radius: 1em;
+			}
+
+
+			.chat .you > p, .chat .me > p {
+				margin-top: 1em;
+				margin-bottom: 0em;
+			}
+
+			.chat .you::after, .chat .me::after {
+				content: "";
+				height: 0em;
+				width: 0em;
+				position: absolute;
+				bottom: 0em;
+				border: 1em solid transparent;
+				border-bottom-color: #222;
+			}
+
+			.chat .you {
+				margin-left: 80%;
+				margin-right: 0%;
+			}
+
+			.chat .you::after {
+				right: -1em;
+			}
+
+			.chat .me {
+				margin-left: 0%;
+				margin-right: 80%;
+			}
+
+			.chat .me::after {
+				left: -1em;
+			}
+
+			.chat > input {
+				display: block;
+			}
+
+			.contacts {
+				background: #555;
+				flex-grow: 1;
+			}
+
+			.contacts ul {
+				list-style-type: none;
+				padding: 0em;
+			}
+
+			.contacts li:nth-child(odd) {
+				background: #555;
+			}
+
+			.contacts li:nth-child(even) {
+				background: #333;
+			}
+
+			.contacts span {
+				float: left;
+				padding: 1em 1em;
+			}
+
+			.contacts button {
+				float: right;
+			}
+
+			.contacts li::after {
+				content: "";
+				display: block;
+				clear: both;
+			}
+
+			.phone {
+				height: 27em;
+				width: 20em;
+				border-radius: 1em;
+				position: absolute;
+				top: 2em;
+				right: 0.5em;
+				background: #111;
+				text-align: center;
+			}
+
+			.phone::before {
+				content: "";
+				height: 0em;
+				width: 0em;
+				position: absolute;
+				top: -1em;
+				right: 0em;
+				border: 1em solid transparent;
+				border-right-color: #111;
+			}
+
+			.phone table {
+				width: 100%;
+				padding: 1.5em;
+			}
+
+			.phone td {
+				position: relative;
+				height: 5em;
+				width: 5em;
+			}
+
+			.phone td > button {
+				position: absolute;
+				top: 0.5em;
+				left: 0.2em;
+				width: 5em;
+				height: 4em;
+			}
+
+			.phone td > button > span {
+				display: inline-block;
+				position: absolute;
+				bottom: 0.1em;
+				left: 0em;
+				width: 5em;
+			}
+
+			button {
+				background: #222;
+				color: #fff;
+				display: inline-block;
+				padding: 1em 2em;
+				margin: 0em;
+				border: none;
+				font-size: 1em;
+				text-align: center;
+				cursor: pointer;
+			}
+
+			button:hover {
+				background: #555;
+			}
+
+			button.active {
+				background: #555;
+			}
+
+			.left {
+				float: left;
+			}
+
+			.right {
+				float: right;
+			}
+		</style>
 	</head>
 
 	<body>
-		<p>TODO</p>
+		<header>
+			<button class="left active">+1 (800) 123-4567</button>
+			<button class="right">Phone</button>
+			<button class="right">Contacts</button>
+		</header>
+
+		<main>
+			<div class="chat">
+				<div>
+					<div class="you">
+						<time>2016-12-27 11:00</time>
+						<p>Test message.</p>
+					</div>
+					<div class="me">
+						<time>2016-12-27 11:05</time>
+						<p>Test response.</p>
+					</div>
+				</div>
+
+				<input type="text" placeholder="Enter Message Here..."/>
+			</div>
+
+			<div class="contacts">
+				<ul>
+					<li><span>BusinessName</span><span>+1 (800) 555-5555</span><button>Call</button><button>Message</button></li>
+				</ul>
+			</div>
+
+			<div class="phone">
+				<p>Dial a Number</p>
+
+				<table>
+					<tbody>
+						<tr>
+							<td><button>1</button></td>
+							<td><button>2<span>ABC</span></button></td>
+							<td><button>3<span>DEF</span></button></td>
+						</tr>
+						<tr>
+							<td><button>4<span>GHI</span></button></td>
+							<td><button>5<span>JKL</span></button></td>
+							<td><button>6<span>MNO</span></button></td>
+						</tr>
+						<tr>
+							<td><button>7<span>PQRS</span></button></td>
+							<td><button>8<span>TUV</span></button></td>
+							<td><button>9<span>WXYZ</span></button></td>
+						</tr>
+						<tr>
+							<td><button>*</button></td>
+							<td><button>0<span>+</span></button></td>
+							<td><button>#</button></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</main>
 	</body>
 </html>
