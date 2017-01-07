@@ -41,6 +41,19 @@ class BrowserHandler(AccountHandler):
 	vbx.devices.browser.online = self.request.body['online']
 
 
+class ContactListHandler(AccountHandler):
+    def do_get(self):
+	return config.contacts
+
+
+class ContactHandler(AccountHandler):
+    def do_get(self):
+	try:
+	    return config.contacts[self.groups[0]]
+	except:
+	    raise web.HTTPError(404)
+
+
 class CallListHandler(AccountHandler):
     def do_get(self):
 	return [self.call_encode(call) for call in client.calls.stream()]
@@ -48,16 +61,22 @@ class CallListHandler(AccountHandler):
 
 class CallHandler(AccountHandler):
     def do_get(self):
-	call = client.calls.get(self.groups[0])
+	try:
+	    call = client.calls.get(self.groups[0])
 
-	return self.call_encode(call.fetch())
+	    return self.call_encode(call.fetch())
+	except:
+	    raise web.HTTPError(404)
 
     def do_delete(self):
-	call = client.calls.get(self.groups[0])
+	try:
+	    call = client.calls.get(self.groups[0])
 
-	call.delete()
+	    call.delete()
 
-	return 204, ''
+	    return 204, ''
+	except:
+	    raise web.HTTPError(404)
 
 
 class MessageListHandler(AccountHandler):
@@ -67,16 +86,22 @@ class MessageListHandler(AccountHandler):
 
 class MessageHandler(AccountHandler):
     def do_get(self):
-	message = client.messages.get(self.groups[0])
+	try:
+	    message = client.messages.get(self.groups[0])
 
-	return self.message_encode(message.fetch())
+	    return self.message_encode(message.fetch())
+	except:
+	    raise web.HTTPError(404)
 
     def do_delete(self):
-	message = client.message.get(self.groups[0])
+	try:
+	    message = client.message.get(self.groups[0])
 
-	message.delete()
+	    message.delete()
 
-	return 204, ''
+	    return 204, ''
+	except:
+	    raise web.HTTPError(404)
 
 
 class FlowHandler(web.form.FormHandler):
@@ -107,7 +132,7 @@ class MessageFlowHandler(FlowHandler):
 	    raise web.HTTPError(404)
 
 
-routes.update({'/': IndexPage, '/browser': BrowserHandler, '/calls/': CallListHandler, '/calls/' + alias: CallHandler, '/msgs/': MessageListHandler, '/msgs/' + alias: MessageHandler, '/flow/voice/' + alias: CallFlowHandler, '/flow/msg/' + alias: MessageFlowHandler})
+routes.update({'/': IndexPage, '/browser': BrowserHandler, '/contacts/': ContactListHandler, '/contacts/' + alias: ContactHandler, '/calls/': CallListHandler, '/calls/' + alias: CallHandler, '/msgs/': MessageListHandler, '/msgs/' + alias: MessageHandler, '/flow/voice/' + alias: CallFlowHandler, '/flow/msg/' + alias: MessageFlowHandler})
 error_routes.update(web.json.new_error())
 
 
