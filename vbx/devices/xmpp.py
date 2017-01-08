@@ -4,11 +4,10 @@ import twilio.rest
 import slixmpp.componentxmpp
 
 import vbx
-import vbx.config
 
 online = False
 
-client = twilio.rest.Client(username=vbx.config.auth[0], password=vbx.config.auth[1])
+client = None
 
 class XMPP(vbx.Device):
     def __init__(self, jid, secret, server, port, target):
@@ -26,6 +25,12 @@ class XMPPComponent(slixmpp.componentxmpp.ComponentXMPP):
         pass
 
     def recv(self, msg):
+        global client
+
+        if not client:
+            import vbx.config
+            client = twilio.rest.Client(username=vbx.config.auth[0], password=vbx.config.auth[1])
+
         client.messages.create('', body='', from_=config.number)
 
     def send(self, event, target, msg):

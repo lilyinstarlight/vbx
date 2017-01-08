@@ -40,8 +40,10 @@ flows = importlib.util.module_from_spec(flows_spec)
 flows_spec.loader.exec_module(flows)
 
 config.auth = flows.auth
+config.number = flows.number
 config.calls = flows.calls
 config.messages = flows.messages
+config.contacts = flows.contacts
 
 
 from vbx import name, version

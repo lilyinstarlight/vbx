@@ -27,7 +27,7 @@ class Call(vbx.Event):
             flow.dial(self, response)
 
             if not flow.completed and flow.next:
-            response.redirect(flow.next)
-            break
+                response.redirect(flow.next)
+                break
 
         return response

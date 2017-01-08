@@ -1,19 +1,23 @@
 import twilio.rest
+import twilio.jwt.client
 
 import web
 import web.file
+import web.form
 import web.json
 import web.page
 
 import vbx.config
 import vbx.events
 import vbx.devices.browser
+import vbx.log
 
 
 alias = '([a-zA-Z0-9._-]+)'
 
 http = None
 
+token = twilio.jwt.client.CapabilityToken(username=vbx.config.auth[0], password=vbx.config.auth[1])
 client = twilio.rest.Client(username=vbx.config.auth[0], password=vbx.config.auth[1])
 
 routes = {}
@@ -21,7 +25,7 @@ error_routes = {}
 
 
 class IndexPage(web.page.PageHandler):
-    directory = config.template
+    directory = vbx.config.template
     page = 'index.html'
 
 
@@ -35,28 +39,30 @@ class AccountHandler(web.json.JSONHandler):
 
 class BrowserHandler(AccountHandler):
     def do_get(self):
-        return {'username': vbx.config.auth[0], 'password': vbx.config.auth[1]}
+        return 200, token.generate()
 
     def do_post(self):
         vbx.devices.browser.online = self.request.body['online']
 
+        return 204, ''
+
 
 class ContactListHandler(AccountHandler):
     def do_get(self):
-        return config.contacts
+        return 200, vbx.config.contacts
 
 
 class ContactHandler(AccountHandler):
     def do_get(self):
         try:
-            return config.contacts[self.groups[0]]
+            return 200, vbx.config.contacts[self.groups[0]]
         except:
             raise web.HTTPError(404)
 
 
 class CallListHandler(AccountHandler):
     def do_get(self):
-        return [self.call_encode(call) for call in client.calls.stream()]
+        return 200, [self.call_encode(call) for call in client.calls.stream()]
 
 
 class CallHandler(AccountHandler):
@@ -64,7 +70,7 @@ class CallHandler(AccountHandler):
         try:
             call = client.calls.get(self.groups[0])
 
-            return self.call_encode(call.fetch())
+            return 200, self.call_encode(call.fetch())
         except:
             raise web.HTTPError(404)
 
@@ -81,7 +87,7 @@ class CallHandler(AccountHandler):
 
 class MessageListHandler(AccountHandler):
     def do_get(self):
-        return [self.message_encode(message) for message in client.messages.stream()]
+        return 200, [self.message_encode(message) for message in client.messages.stream()]
 
 
 class MessageHandler(AccountHandler):
@@ -89,7 +95,7 @@ class MessageHandler(AccountHandler):
         try:
             message = client.messages.get(self.groups[0])
 
-            return self.message_encode(message.fetch())
+            return 200, self.message_encode(message.fetch())
         except:
             raise web.HTTPError(404)
 
@@ -133,14 +139,14 @@ class MessageFlowHandler(FlowHandler):
 
 
 routes.update({'/': IndexPage, '/browser': BrowserHandler, '/contacts/': ContactListHandler, '/contacts/' + alias: ContactHandler, '/calls/': CallListHandler, '/calls/' + alias: CallHandler, '/msgs/': MessageListHandler, '/msgs/' + alias: MessageHandler, '/flow/voice/' + alias: CallFlowHandler, '/flow/msg/' + alias: MessageFlowHandler})
-routes.update(web.file.new(config.resource, '/res'))
+routes.update(web.file.new(vbx.config.resource, '/res'))
 error_routes.update(web.json.new_error())
 
 
 def start():
     global http
 
-    http = web.HTTPServer(config.addr, routes, error_routes, log=log.httplog)
+    http = web.HTTPServer(vbx.config.addr, routes, error_routes, log=vbx.log.httplog)
     http.start()
 
 

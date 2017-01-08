@@ -28,7 +28,7 @@ class Message(vbx.Event):
             flow.send(self, self.body, response)
 
             if not flow.completed and flow.next:
-            response.redirect(flow.next)
-            break
+                response.redirect(flow.next)
+                break
 
         return response

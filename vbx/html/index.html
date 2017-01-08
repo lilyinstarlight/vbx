@@ -14,7 +14,7 @@
 			<button id="button_contacts" class="right" onclick="select('contacts')">Contacts</button>
 		</header>
 
-		<main>
+		<main id="main">
 			<div class="chat">
 				<div>
 					<div class="you">
@@ -32,7 +32,6 @@
 
 			<div id="contacts" class="contacts">
 				<ul>
-					<li><span>BusinessName</span><span>+1 (800) 555-5555</span><button>Call</button><button>Message</button></li>
 				</ul>
 			</div>
 
@@ -60,6 +59,11 @@
 							<td><button onclick="click('*')">*</button></td>
 							<td><button onclick="click('0')">0<span>+</span></button></td>
 							<td><button onclick="click('#')">#</button></td>
+						</tr>
+						<tr>
+							<td><button onclick="click('hangup')" class="hangup">Hangup</button></td>
+							<td></td>
+							<td><button onclick="click('dial')" class="dial">Dial</button></td>
 						</tr>
 					</tbody>
 				</table>
