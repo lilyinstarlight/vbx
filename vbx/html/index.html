@@ -6,12 +6,13 @@
 		<link rel="stylesheet" href="/res/vbx.css"/>
 
 		<script src="/res/vbx.js"></script>
+		<script src="//media.twiliocdn.com/sdk/js/client/v1.4/twilio.min.js"></script>
 	</head>
 
 	<body>
 		<header id="buttons">
-			<button id="button_phone" class="right" onclick="select('toggle')">Phone</button>
-			<button id="button_contacts" class="right" onclick="select('contacts')">Contacts</button>
+			<button id="button_phone" class="right" onclick="window.select('toggle')">Phone</button>
+			<button id="button_contacts" class="right" onclick="window.select('contacts')">Contacts</button>
 		</header>
 
 		<main id="main">
@@ -41,29 +42,29 @@
 				<table>
 					<tbody>
 						<tr>
-							<td><button onclick="click('1')">1</button></td>
-							<td><button onclick="click('2')">2<span>ABC</span></button></td>
-							<td><button onclick="click('3')">3<span>DEF</span></button></td>
+							<td><button onclick="window.click('1')">1</button></td>
+							<td><button onclick="window.click('2')">2<span>ABC</span></button></td>
+							<td><button onclick="window.click('3')">3<span>DEF</span></button></td>
 						</tr>
 						<tr>
-							<td><button onclick="click('4')">4<span>GHI</span></button></td>
-							<td><button onclick="click('5')">5<span>JKL</span></button></td>
-							<td><button onclick="click('6')">6<span>MNO</span></button></td>
+							<td><button onclick="window.click('4')">4<span>GHI</span></button></td>
+							<td><button onclick="window.click('5')">5<span>JKL</span></button></td>
+							<td><button onclick="window.click('6')">6<span>MNO</span></button></td>
 						</tr>
 						<tr>
-							<td><button onclick="click('7')">7<span>PQRS</span></button></td>
-							<td><button onclick="click('8')">8<span>TUV</span></button></td>
-							<td><button onclick="click('9')">9<span>WXYZ</span></button></td>
+							<td><button onclick="window.click('7')">7<span>PQRS</span></button></td>
+							<td><button onclick="window.click('8')">8<span>TUV</span></button></td>
+							<td><button onclick="window.click('9')">9<span>WXYZ</span></button></td>
 						</tr>
 						<tr>
-							<td><button onclick="click('*')">*</button></td>
-							<td><button onclick="click('0')">0<span>+</span></button></td>
-							<td><button onclick="click('#')">#</button></td>
+							<td><button onclick="window.click('*')">*</button></td>
+							<td><button onclick="window.click('0')">0<span>+</span></button></td>
+							<td><button onclick="window.click('#')">#</button></td>
 						</tr>
 						<tr>
-							<td><button onclick="click('hangup')" class="hangup">Hangup</button></td>
+							<td><button onclick="window.click('hangup')" class="hangup">Hangup</button></td>
 							<td></td>
-							<td><button onclick="click('dial')" class="dial">Dial</button></td>
+							<td><button onclick="window.click('dial')" class="dial">Dial</button></td>
 						</tr>
 					</tbody>
 				</table>

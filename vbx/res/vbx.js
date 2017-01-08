@@ -4,9 +4,13 @@ var conversations = [];
 var contacts = null;
 var phone = null;
 var last = null;
-var status = null;
+var state = 'idle';
+var statusline = null;
 
 var contact = {};
+
+var token = null;
+var connection = null;
 
 var xhr = function(method, resource, data, callback) {
 	var req = new XMLHttpRequest();
@@ -34,12 +38,9 @@ var load = function() {
 	conversations = [];
 	contacts = document.getElementById('contacts');
 	phone = document.getElementById('phone');
-	status = document.getElementById('status');
+	statusline = document.getElementById('status');
 
 	contact = {};
-
-	// setup select
-	phone.style.display = 'none';
 
 	// load contacts
 	xhr('get', '/contacts/', undefined, function(response) {
@@ -60,10 +61,10 @@ var load = function() {
 			button_message.innerText = 'Message';
 
 			button_call.addEventListener('click', function(ev) {
-				call(key);
+				window.call(key);
 			});
 			button_message.addEventListener('click', function(ev) {
-				open(key);
+				window.open(key);
 			});
 
 			li.appendChild(span_name);
@@ -76,9 +77,54 @@ var load = function() {
 	});
 
 	// setup callbacks
+	xhr('get', '/browser', undefined, function(data) {
+		// get token
+		token = data.token;
 
-	// mark online
-	xhr('post', '/browser', {'online': true});
+		// setup Twilio.Device
+		Twilio.Device.setup(token);
+
+		Twilio.Device.connect(function (conn) {
+			state = 'connected';
+			statusline.innerText = 'Connected.';
+		});
+
+		Twilio.Device.disconnect(function (conn) {
+			state = 'idle';
+			statusline.innerText = 'Dial a Number';
+		});
+
+		Twilio.Device.incoming(function (conn) {
+			state = 'incoming';
+
+			connection = conn;
+
+			// get from name
+			from = conn.parameters.From;
+
+			if (from in contact)
+				from = contact[from];
+
+			statusline.innerText = 'Incoming Call From ' + from;
+
+			// open phone
+			select('phone');
+		});
+
+		Twilio.Device.offline(function(device) {
+			// get another token
+			xhr('get', '/browser', undefined, function(data) {
+				// get token
+				token = data.token;
+
+				// setup Twilio.Device
+				Twilio.Device.setup(token);
+			});
+		});
+
+		// mark online
+		xhr('post', '/browser', {'online': true});
+	});
 
 	// select nothing
 	select(null);
@@ -114,7 +160,7 @@ var open = function(number) {
 		// create button
 		var button = document.createElement('button');
 		button.id = 'button_' + number;
-		button.addEventListener('click', function(ev) { select(number) });
+		button.addEventListener('click', function(ev) { window.select(number) });
 	}
 
 	// bring it forward
@@ -133,25 +179,58 @@ var close = function(number) {
 };
 
 var click = function(key) {
-
-	if (status.innerText === 'Connecting...' || status.innerText === 'Connected') {
+	if (state === 'connecting' || state === 'connected') {
 		if (key === 'hangup') {
+			hangup();
+		}
+		else if (key === 'dial') {
+			// do nothing
 		}
 		else {
-			sendDTMF();
+			connection.sendDigits(key);
 		}
 	}
-	else {
-		if (key === 'dial') {
-			call(status.innerText);
+	else if (state === 'idle') {
+		if (key === 'hangup') {
+			// do nothing
+		}
+		else if (key === 'dial') {
+			// do nothing
 		}
 		else {
-			status.innerText += key;
+			statusline.innerText = key;
 		}
+
+		state = 'dialing';
+	}
+	else if (state === 'dialing') {
+		if (key === 'dial') {
+			call(statusline.innerText);
+		}
+		else if (key === 'hangup') {
+			statusline.innerText = 'Dial a Number';
+
+			state = 'idle';
+		}
+		else {
+			statusline.innerText += key;
+		}
+	}
+	else if (state === 'incoming') {
+		if (key === 'dial')
+			connection.accept();
+		else if (key === 'hangup')
+			connection.reject();
 	}
 };
 
 var call = function(number) {
+	// update state
+	state = 'connecting';
+
+	// create connection
+	connection = Twilio.Device.connect({'To': number});
+
 	// call number
 	select('phone');
 };
@@ -159,6 +238,9 @@ var call = function(number) {
 var hangup = function() {
 	// close phone
 	select(last);
+
+	// disconnect line
+	Twilio.Device.disconnectAll();
 };
 
 var select = function(id) {
@@ -173,7 +255,7 @@ var select = function(id) {
 
 	if (id === 'phone') {
 		// simply display phone
-		phone.style.display = 'initial';
+		phone.style.display = '';
 	}
 	else {
 		// close all conversations
@@ -187,7 +269,7 @@ var select = function(id) {
 
 		// display requested section
 		if (id !== null)
-			document.getElementById(id).style.display = 'initial';
+			document.getElementById(id).style.display = '';
 	}
 
 	// disable all buttons

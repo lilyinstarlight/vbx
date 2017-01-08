@@ -17,7 +17,7 @@ alias = '([a-zA-Z0-9._-]+)'
 
 http = None
 
-token = twilio.jwt.client.CapabilityToken(username=vbx.config.auth[0], password=vbx.config.auth[1])
+token = twilio.jwt.client.CapabilityToken(account_sid=vbx.config.auth[0], auth_token=vbx.config.auth[1])
 token.allow_client_outgoing(vbx.config.app)
 token.allow_client_incoming('vbx')
 

@@ -40,6 +40,7 @@ flows = importlib.util.module_from_spec(flows_spec)
 flows_spec.loader.exec_module(flows)
 
 config.auth = flows.auth
+config.app = flows.app
 config.number = flows.number
 config.calls = flows.calls
 config.messages = flows.messages
