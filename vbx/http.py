@@ -18,6 +18,9 @@ alias = '([a-zA-Z0-9._-]+)'
 http = None
 
 token = twilio.jwt.client.CapabilityToken(username=vbx.config.auth[0], password=vbx.config.auth[1])
+token.allow_client_outgoing(vbx.config.app)
+token.allow_client_incoming('vbx')
+
 client = twilio.rest.Client(username=vbx.config.auth[0], password=vbx.config.auth[1])
 
 routes = {}
@@ -39,7 +42,7 @@ class AccountHandler(web.json.JSONHandler):
 
 class BrowserHandler(AccountHandler):
     def do_get(self):
-        return 200, token.generate()
+        return 200, {'token': token.generate()}
 
     def do_post(self):
         vbx.devices.browser.online = self.request.body['online']

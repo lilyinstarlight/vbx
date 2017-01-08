@@ -16,6 +16,9 @@ resource = os.path.dirname(__file__) + '/res'
 # account sid and auth token
 auth = ('AC0123456789abcdef0123456789abcdef', '0123456789abcdef0123456789abcdef')
 
+# app sid
+app = 'AP0123456789abcdef0123456789abcdef'
+
 # number from account to use
 number = '+18001234567'
 
