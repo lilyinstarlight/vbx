@@ -127,6 +127,10 @@ var load = function() {
 		xhr('post', '/browser', {'online': true});
 	});
 
+	// setup message callbacks
+	setTimeout(function() {
+	},1000);
+
 	// select nothing
 	select(null);
 
