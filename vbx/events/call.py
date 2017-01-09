@@ -1,6 +1,7 @@
 import twilio.twiml
 
 import vbx
+import vbx.config
 
 class Call(vbx.Event):
     def __init__(self, request):
@@ -23,11 +24,19 @@ class Call(vbx.Event):
     def handle(self, flows):
         response = twilio.twiml.Response()
 
-        for flow in flows:
-            flow.dial(self, response)
+        if self.to == vbx.config.number:
+            for flow in flows:
+                flow.dial(self, response)
 
-            if not flow.completed and flow.next:
-                response.redirect(flow.next)
-                break
+                if not flow.completed and flow.next:
+                    response.redirect(flow.next)
+                    break
+        else:
+            dial = response.dial(callerId=vbx.config.number)
+
+            if number.match(event.to):
+                dial.number(event.to)
+            else:
+                dial.client(event.to)
 
         return response

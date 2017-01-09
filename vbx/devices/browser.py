@@ -3,7 +3,6 @@ import re
 import twilio.twiml
 
 import vbx
-import vbx.config
 
 
 online = False
@@ -17,12 +16,7 @@ class Browser(vbx.Device):
         return online
 
     def dial(self, event, response):
-        dial = response.dial(callerId=vbx.config.number)
-
-        if number.match(event.to):
-            dial.number(event.to)
-        else:
-            dial.client(event.to)
+        response.dial().client('vbx')
 
     def send(self, event, message, response):
         pass
