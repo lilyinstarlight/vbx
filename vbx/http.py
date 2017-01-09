@@ -135,6 +135,7 @@ class CallFlowHandler(FlowHandler):
         self.event = vbx.events.Call(self.request.body)
 
         try:
+            self.response.headers['Content-Type'] = 'text/xml'
             return 200, str(self.event.handle(vbx.config.calls[self.groups[0]]))
         except ValueError:
             raise web.HTTPError(400)
@@ -147,6 +148,7 @@ class MessageFlowHandler(FlowHandler):
         self.event = vbx.events.Message(self.request.body)
 
         try:
+            self.response.headers['Content-Type'] = 'text/xml'
             return 200, str(self.event.handle(vbx.config.messages[self.groups[0]]))
         except ValueError:
             raise web.HTTPError(400)
