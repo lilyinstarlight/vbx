@@ -5,6 +5,7 @@ body {
 	margin: 0em;
 	min-height: 100vh;
 	flex-direction: column;
+	overflow: hidden;
 
 	display: none;
 }
@@ -29,7 +30,7 @@ main {
 .chat {
 	background: #555;
 	display: flex;
-	height: 100%;
+	height: calc(100vh - 3em);
 	flex-direction: column;
 	flex-grow: 1;
 }
