@@ -1,12 +1,9 @@
-import re
-
 import twilio.twiml
 
 import vbx
 
 
 online = False
-number = re.compile("^[\d\+\-\(\) ]+$")
 
 
 class Browser(vbx.Device):

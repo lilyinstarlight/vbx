@@ -1,7 +1,13 @@
+import re
+
 import twilio.twiml
 
 import vbx
 import vbx.config
+
+
+number = re.compile("^[\d\+\-\(\) ]+$")
+
 
 class Call(vbx.Event):
     def __init__(self, request):
