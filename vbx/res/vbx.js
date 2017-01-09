@@ -132,34 +132,34 @@ var load = function() {
 			});
 		});
 
+		// setup message callbacks
+		var messageUpdate = function() {
+			var current = last;
+			var next = new Date().toISOString();
+
+			xhr('get', '/msgs/?date_sent_after=' + current + '&to=' + number, undefined, function(data) {
+				data.forEach(function(msg) {
+					open(msg.from, current);
+				});
+			});
+
+			xhr('get', '/msgs/?date_sent_after=' + current + '&from=' + number, undefined, function(data) {
+				data.forEach(function(msg) {
+					open(msg.to, current);
+				});
+			});
+
+			last = next;
+
+			setTimeout(messageUpdate, 1000);
+		};
+
+		// initiate message updates
+		messageUpdate();
+
 		// mark online
 		xhr('post', '/browser', {'online': true});
 	});
-
-	// setup message callbacks
-	var messageUpdate = function() {
-		var current = last;
-		var next = new Date().toISOString();
-
-		xhr('get', '/msgs/?date_sent_after=' + current + '&to=' + number, undefined, function(data) {
-			data.forEach(function(msg) {
-				open(msg.from, current);
-			});
-		});
-
-		xhr('get', '/msgs/?date_sent_after=' + current + '&from=' + number, undefined, function(data) {
-			data.forEach(function(msg) {
-				open(msg.to, current);
-			});
-		});
-
-		last = next;
-
-		setTimeout(messageUpdate, 1000);
-	};
-
-	// initiate message updates
-	messageUpdate();
 
 	// select nothing
 	select(null);
