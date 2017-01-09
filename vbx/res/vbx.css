@@ -147,6 +147,7 @@ main {
 	right: 0.5em;
 	background: #111;
 	text-align: center;
+	z-index: 1000;
 }
 
 .phone::before {
