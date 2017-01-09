@@ -273,11 +273,11 @@ var open = function(number, date) {
 				container.appendChild(div);
 			});
 
-			// scroll chat down
-			container.scrollTop = 2147483646;
-
 			// bring chat forward
 			select(number);
+
+			// scroll chat down
+			container.scrollTop = 2147483646;
 		});
 	});
 };
