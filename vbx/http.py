@@ -50,7 +50,7 @@ class ListHandler(web.query.QueryMixIn, AccountHandler):
 
 class BrowserHandler(AccountHandler):
     def do_get(self):
-        return 200, {'token': token.generate()}
+        return 200, {'number': vbx.config.number, 'token': token.generate()}
 
     def do_post(self):
         vbx.devices.browser.online = self.request.body['online']
@@ -74,6 +74,10 @@ class ContactHandler(AccountHandler):
 class CallListHandler(ListHandler):
     def do_get(self):
         try:
+            if 'from' in self.request.query:
+                self.request.query['from_'] = self.request.query['from']
+                del self.request.query['from']
+
             return 200, [self.call_encode(call) for call in client.calls.page(**self.request.query)]
         except TypeError:
             raise web.HTTPError(400)
@@ -102,6 +106,10 @@ class CallHandler(AccountHandler):
 class MessageListHandler(ListHandler):
     def do_get(self):
         try:
+            if 'from' in self.request.query:
+                self.request.query['from_'] = self.request.query['from']
+                del self.request.query['from']
+
             return 200, [self.message_encode(message) for message in client.messages.page(**self.request.query)]
         except TypeError:
             raise web.HTTPError(400)
