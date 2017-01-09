@@ -1,4 +1,5 @@
 import datetime
+import threading
 
 import twilio.twiml
 
@@ -6,12 +7,14 @@ import vbx
 
 
 last = datetime.datetime.now()
+last_lock = threading.Lock()
 delta = datetime.timedelta(seconds=10)
 
 
 class Browser(vbx.Device):
     def online(self):
-        return (datetime.datetime.now() - last) > delta
+        with last_lock:
+            return (datetime.datetime.now() - last) < delta
 
     def dial(self, event, response):
         response.dial().client('vbx')

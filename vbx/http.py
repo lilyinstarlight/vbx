@@ -54,7 +54,8 @@ class BrowserHandler(AccountHandler):
         return 200, {'number': vbx.config.number, 'token': token.generate()}
 
     def do_post(self):
-        vbx.devices.browser.last = datetime.datetime.now()
+        with vbx.devices.browser.last_lock:
+            vbx.devices.browser.last = datetime.datetime.now()
 
         return 204, ''
 
