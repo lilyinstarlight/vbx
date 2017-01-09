@@ -11,6 +11,7 @@ var contact = {};
 
 var token = null;
 var connection = null;
+var incoming = null;
 
 var xhr = function(method, resource, data, callback) {
 	var req = new XMLHttpRequest();
@@ -97,7 +98,7 @@ var load = function() {
 		Twilio.Device.incoming(function (conn) {
 			state = 'incoming';
 
-			connection = conn;
+			incoming = conn;
 
 			// get from name
 			from = conn.parameters.From;
@@ -217,10 +218,14 @@ var click = function(key) {
 		}
 	}
 	else if (state === 'incoming') {
-		if (key === 'dial')
-			connection.accept();
-		else if (key === 'hangup')
-			connection.reject();
+		if (key === 'dial') {
+			incoming.accept();
+
+			connection = incoming;
+		}
+		else if (key === 'hangup') {
+			incoming.reject();
+		}
 	}
 };
 
