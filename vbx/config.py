@@ -24,13 +24,13 @@ number = '+18001234567'
 
 # call flows (make sure they connect properly by key)
 calls = {
-    'call': [vbx.flows.Device(devices=[vbx.devices.Browser()], next='phone')],
+    'default': [vbx.flows.Device(devices=[vbx.devices.Browser()], next='phone')],
     'phone': [vbx.flows.Dial(number='+18005555555')],
 }
 
 # message flows (make sure they connect properly by key)
 messages = {
-    'message': [vbx.flows.Device(devices=[vbx.devices.Browser(), vbx.devices.SMS(number='+18005555555')])],
+    'default': [vbx.flows.Device(devices=[vbx.devices.Browser(), vbx.devices.SMS(number='+18005555555')])],
 }
 
 # contacts
