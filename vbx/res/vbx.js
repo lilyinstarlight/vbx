@@ -226,6 +226,9 @@ var click = function(key) {
 		else if (key === 'hangup') {
 			incoming.reject();
 		}
+
+		state = 'connected';
+		status.innerText = 'Connected.';
 	}
 };
 
