@@ -17,6 +17,7 @@ import vbx.log
 
 
 alias = '([a-zA-Z0-9._-]+)'
+query = '(?:\?([\w=&+:-]*))?'
 
 http = None
 
@@ -156,7 +157,7 @@ class MessageFlowHandler(FlowHandler):
             raise web.HTTPError(404)
 
 
-routes.update({'/': IndexPage, '/browser': BrowserHandler, '/contacts/': ContactListHandler, '/contacts/' + alias: ContactHandler, '/calls/' + web.query.regex: CallListHandler, '/calls/' + alias: CallHandler, '/msgs/' + web.query.regex: MessageListHandler, '/msgs/' + alias: MessageHandler, '/flow/voice/' + alias: CallFlowHandler, '/flow/msg/' + alias: MessageFlowHandler})
+routes.update({'/': IndexPage, '/browser': BrowserHandler, '/contacts/': ContactListHandler, '/contacts/' + alias: ContactHandler, '/calls/' + query: CallListHandler, '/calls/' + alias: CallHandler, '/msgs/' + query: MessageListHandler, '/msgs/' + alias: MessageHandler, '/flow/voice/' + alias: CallFlowHandler, '/flow/msg/' + alias: MessageFlowHandler})
 routes.update(web.file.new(vbx.config.resource, '/res'))
 error_routes.update(web.json.new_error())
 
