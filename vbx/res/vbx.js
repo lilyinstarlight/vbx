@@ -179,6 +179,7 @@ var open = function(number, date) {
 		var chat = document.createElement('div');
 		chat.id = number;
 		chat.classList.add('chat');
+		chat.style.display = 'none';
 
 		var container = document.createElement('div');
 
