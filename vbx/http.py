@@ -17,7 +17,7 @@ import vbx.log
 
 
 alias = '([a-zA-Z0-9._-]+)'
-query = '(?:\?([\w=&+:%-]*))?'
+query = '(?:\?([\w=&+.:%-]*))?'
 
 http = None
 
