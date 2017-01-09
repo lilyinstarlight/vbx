@@ -64,7 +64,7 @@ class BrowserHandler(AccountHandler):
 class OutgoingHandler(AccountHandler):
     def do_post(self):
         try:
-            client.messages.create(self.request.body['to'], self.request.body['body'], vbx.config.number)
+            client.messages.create(self.request.body['to'], body=self.request.body['body'], from_=vbx.config.number)
 
             return 204, ''
         except KeyError:
