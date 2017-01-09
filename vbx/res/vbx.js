@@ -139,13 +139,13 @@ var load = function() {
 		var current = last;
 		var next = new Date().toISOString();
 
-		xhr('get', '/msgs/?date_sent_after=' + current + '&to=+9193667837', undefined, function(data) {
+		xhr('get', '/msgs/?date_sent_after=' + current + '&to=' + number, undefined, function(data) {
 			data.forEach(function(msg) {
 				open(msg.from, current);
 			});
 		});
 
-		xhr('get', '/msgs/?date_sent_after=' + current + '&from=+9193667837', undefined, function(data) {
+		xhr('get', '/msgs/?date_sent_after=' + current + '&from=' + number, undefined, function(data) {
 			data.forEach(function(msg) {
 				open(msg.to, current);
 			});
