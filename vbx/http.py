@@ -132,7 +132,7 @@ class FlowHandler(web.form.FormHandler):
 
 class CallFlowHandler(FlowHandler):
     def do_post(self):
-        self.event = vbx.events.Call(self.body)
+        self.event = vbx.events.Call(self.request.body)
 
         try:
             return 200, str(self.event.handle(vbx.config.calls[self.groups[0]]))
@@ -144,7 +144,7 @@ class CallFlowHandler(FlowHandler):
 
 class MessageFlowHandler(FlowHandler):
     def do_post(self):
-        self.event = vbx.events.Message(self.body)
+        self.event = vbx.events.Message(self.request.body)
 
         try:
             return 200, str(self.event.handle(vbx.config.messages[self.groups[0]]))
