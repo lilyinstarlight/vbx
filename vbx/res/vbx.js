@@ -195,6 +195,10 @@ var open = function(number, date) {
 		// create button
 		var button = document.createElement('button');
 		button.id = 'button_' + number;
+		if (number in contact)
+			button.innerText = contact[number];
+		else
+			button.innerText = number;
 		button.addEventListener('click', function(ev) { window.select(number) });
 
 		buttons.insertBefore(button, buttons.firstChild);
