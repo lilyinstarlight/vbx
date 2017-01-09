@@ -37,13 +37,13 @@ class IndexPage(web.page.PageHandler):
 
 class AccountHandler(web.json.JSONHandler):
     def call_encode(self, call):
-        return {'annotation': call.annotation, 'date': call.date_created.isoformat(), 'direction': call.direction, 'duration': call.duration, 'from': call.from_formatted, 'to': call.to}
+        return {'sid': call.sid, 'annotation': call.annotation, 'date': call.date_created.isoformat(), 'direction': call.direction, 'duration': call.duration, 'from': call.from_formatted, 'to': call.to}
 
     def message_encode(self, msg):
-        return {'body': msg.body, 'date': msg.date_created.isoformat(), 'direction': msg.direction, 'from': msg.from_, 'to': msg.to}
+        return {'sid': msg.sid, 'body': msg.body, 'date': msg.date_created.isoformat(), 'direction': msg.direction, 'from': msg.from_, 'to': msg.to}
 
 
-class ListHandler(AccountHandler, web.query.QueryMixIn):
+class ListHandler(web.query.QueryMixIn, AccountHandler):
     pass
 
 
