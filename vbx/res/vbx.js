@@ -189,7 +189,7 @@ var open = function(number, date) {
 		input.addEventListener('keyup', function(ev) {
 			if (ev.keyCode == 13) {
 				ev.preventDefault();
-				xhr('post', '/msg', {'body': input.value});
+				xhr('post', '/msg', {'to': number, 'body': input.value});
 				input.value = '';
 			}
 		});
