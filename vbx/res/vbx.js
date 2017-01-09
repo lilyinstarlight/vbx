@@ -9,9 +9,13 @@ var statusline = null;
 
 var contact = {};
 
+var number = null;
+
 var token = null;
 var connection = null;
 var incoming = null;
+
+var last = new Date().toISOString();
 
 var xhr = function(method, resource, data, callback) {
 	var req = new XMLHttpRequest();
@@ -79,6 +83,9 @@ var load = function() {
 
 	// setup callbacks
 	xhr('get', '/browser', undefined, function(data) {
+		// get number
+		number = data.number;
+
 		// get token
 		token = data.token;
 
@@ -128,8 +135,26 @@ var load = function() {
 	});
 
 	// setup message callbacks
-	setTimeout(function() {
-	},1000);
+	var messageUpdate = function() {
+		var current = last;
+		var next = new Date().toISOString();
+
+		xhr('get', '/msgs/?date_sent_after=' + current + '&to=+9193667837', undefined, function(data) {
+			data.forEach(function(msg) {
+				open(msg.from, current);
+			});
+		});
+
+		xhr('get', '/msgs/?date_sent_after=' + current + '&from=+9193667837', undefined, function(data) {
+			data.forEach(function(msg) {
+				open(msg.to, current);
+			});
+		});
+
+		last = next;
+
+		setTimeout(messageUpdate, 1000);
+	};
 
 	// select nothing
 	select(null);
@@ -143,7 +168,7 @@ var unload = function() {
 	xhr('post', '/browser', {'online': false});
 };
 
-var open = function(number) {
+var open = function(number, date) {
 	if (document.getElementById(number) === null) {
 		// create new chat block
 		var chat = document.createElement('div');
@@ -168,8 +193,63 @@ var open = function(number) {
 		button.addEventListener('click', function(ev) { window.select(number) });
 	}
 
-	// bring it forward
-	select(number);
+	base = '/msgs/?';
+
+	if (date !== undefined)
+		base += 'date_sent_after=' + date + '&';
+
+	// load chat
+	xhr('get', base + 'to=' + number, function(data) {
+		xhr('get', base + 'from=' + number, function(dataInner) {
+			// get all messages
+			var messages = data.concat(dataInner);
+
+			// sort by date
+			messages.sort(function(left, right) {
+				return new Date(right.date) - new Date(left.date);
+			});
+
+			// generate elements
+			messages.forEach(function(message) {
+				// create chat bubble
+				var div = document.createElement('div');
+
+				// set class based on whether this was sent or receieved
+				if (message.from === number)
+					div.classList.add('me');
+				else
+					div.classList.add('you');
+
+				// get message time
+				var date = new Date(message.date);
+
+				// format time
+				var time = document.createElement('time');
+				time.innerText = '';
+				time.innerText += date.getFullYear();
+				time.innerText += ('0' + (date.Month() + 1)).slice(-2);
+				time.innerText += ('0' + date.getDate()).slice(-2);
+				time.innerText += ' ';
+				time.innerText += ('0' + date.getHours()).slice(-2);
+				time.innerText += ':';
+				time.innerText += ('0' + date.getSeconds()).slice(-2);
+
+				// add body
+				var p = document.createElement('p');
+				p.innerText = message.body;
+
+				// join time and body into message
+				div.appendChild(time);
+				div.appendChild(p);
+
+				// add message to chat window
+				document.getElementById(number).children[0].appendChild(div);
+			});
+
+			// bring chat forward
+			select(number);
+		});
+	});
 };
 
 var close = function(number) {
