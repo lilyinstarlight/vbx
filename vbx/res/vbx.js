@@ -210,6 +210,9 @@ var open = function(number, date) {
 		button.addEventListener('click', function(ev) { window.select(number) });
 
 		buttons.insertBefore(button, buttons.firstChild);
+
+		// load a page of messages instead of new
+		date = undefined;
 	}
 
 	base = '/msgs/?';
