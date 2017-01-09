@@ -186,6 +186,13 @@ var open = function(number, date) {
 		var input = document.createElement('input');
 		input.type = 'text';
 		input.placeholder = 'Enter Message Here...';
+		input.addEventListener('keyup', function(ev) {
+			if (ev.keyCode == 13) {
+				ev.preventDefault();
+				xhr('post', '/msg', {'body': input.value});
+				input.value = '';
+			}
+		});
 
 		chat.appendChild(container);
 		chat.appendChild(input);
