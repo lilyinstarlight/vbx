@@ -97,13 +97,16 @@ main {
 }
 
 .contacts {
-	background: #111;
+	background: #555;
 	flex-grow: 1;
 }
 
 .contacts ul {
-	list-style-type: none;
 	padding: 0em;
+}
+
+.contacts li {
+	list-style-type: none;
 }
 
 .contacts li:nth-child(odd) {
@@ -121,6 +124,10 @@ main {
 
 .contacts button {
 	float: right;
+}
+
+.contacts button:hover {
+	background: #444;
 }
 
 .contacts li::after {
