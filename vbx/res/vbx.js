@@ -1,4 +1,5 @@
-var buttons = [];
+var buttons = null;
+var button = [];
 var main = null;
 var conversations = [];
 var contacts = null;
@@ -38,7 +39,8 @@ var xhr = function(method, resource, data, callback) {
 
 var load = function() {
 	// get elements
-	buttons = document.getElementById('buttons').children;
+	buttons = document.getElementById('buttons');
+	button = document.getElementById('buttons').children;
 	main = document.getElementById('main');
 	conversations = [];
 	contacts = document.getElementById('contacts');
@@ -194,6 +196,8 @@ var open = function(number, date) {
 		var button = document.createElement('button');
 		button.id = 'button_' + number;
 		button.addEventListener('click', function(ev) { window.select(number) });
+
+		buttons.insertBefore(button, buttons.firstChild);
 	}
 
 	base = '/msgs/?';
@@ -368,8 +372,8 @@ var select = function(id) {
 	}
 
 	// disable all buttons
-	for (var button = 0; button < buttons.length; button++)
-		buttons[button].classList.remove('active');
+	for (var idx = 0; idx < button.length; idx++)
+		button[idx].classList.remove('active');
 
 	// mark respective button as active
 	if (id !== null)
