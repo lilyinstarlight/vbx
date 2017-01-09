@@ -216,9 +216,12 @@ var open = function(number, date) {
 			// get all messages
 			var messages = data.concat(dataInner);
 
+			// get container
+			var container = document.getElementById(number).children[0];
+
 			// sort by date
 			messages.sort(function(left, right) {
-				return new Date(right.date) - new Date(left.date);
+				return new Date(left.date) - new Date(right.date);
 			});
 
 			// generate elements
@@ -255,8 +258,11 @@ var open = function(number, date) {
 				div.appendChild(p);
 
 				// add message to chat window
-				document.getElementById(number).children[0].appendChild(div);
+				container.appendChild(div);
 			});
+
+			// scroll chat down
+			container.scrollTop = 2147483646;
 
 			// bring chat forward
 			select(number);
