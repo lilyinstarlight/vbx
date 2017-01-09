@@ -40,9 +40,9 @@ class Call(vbx.Event):
         else:
             dial = response.dial(callerId=vbx.config.number)
 
-            if number.match(event.to):
-                dial.number(event.to)
+            if number.match(self.to):
+                dial.number(self.to)
             else:
-                dial.client(event.to)
+                dial.client(self.to)
 
         return response
