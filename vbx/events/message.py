@@ -7,9 +7,13 @@ class Message(vbx.Event):
         super().__init__(request)
 
         self.sid = request['MessageSid']
-        self.service_sid = request['MessagingServiceSid']
         self.body = request['Body']
         self.num_media = request['NumMedia']
+
+        try:
+            self.service_sid = request['MessagingServiceSid']
+        except KeyError:
+            self.service_sid = None
 
         try:
             self.media_type = request['MediaContentType']
