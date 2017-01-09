@@ -1,4 +1,5 @@
 import vbx
+import vbx.config
 
 class Dial(vbx.Flow):
     def __init__(self, number=None, client=None, conference=None, queue=None, sip=None, **kwargs):
@@ -11,7 +12,7 @@ class Dial(vbx.Flow):
         super().__init__(**kwargs)
 
     def dial(self, event, response):
-        dial = response.dial()
+        dial = response.dial(callerId=vbx.config.number)
 
         if self.number:
             dial.number(self.number)
