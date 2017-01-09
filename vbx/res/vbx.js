@@ -156,6 +156,9 @@ var load = function() {
 		setTimeout(messageUpdate, 1000);
 	};
 
+	// initiate message updates
+	messageUpdate();
+
 	// select nothing
 	select(null);
 
