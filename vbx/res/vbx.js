@@ -16,7 +16,7 @@ var token = null;
 var connection = null;
 var incoming = null;
 
-var last = new Date().toISOString();
+var messageTime = new Date().toISOString();
 
 var xhr = function(method, resource, data, callback) {
 	var req = new XMLHttpRequest();
@@ -134,7 +134,7 @@ var load = function() {
 
 		// setup message callbacks
 		var messageUpdate = function() {
-			var current = last;
+			var current = messageTime;
 			var next = new Date().toISOString();
 
 			xhr('get', '/msgs/?date_sent_after=' + current + '&to=' + number, undefined, function(data) {
@@ -149,7 +149,7 @@ var load = function() {
 				});
 			});
 
-			last = next;
+			messageTime = next;
 
 			setTimeout(messageUpdate, 1000);
 		};
