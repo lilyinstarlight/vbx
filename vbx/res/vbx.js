@@ -211,8 +211,8 @@ var open = function(number, date) {
 		base += 'date_sent_after=' + date + '&';
 
 	// load chat
-	xhr('get', base + 'to=' + number, function(data) {
-		xhr('get', base + 'from=' + number, function(dataInner) {
+	xhr('get', base + 'to=' + number, undefined, function(data) {
+		xhr('get', base + 'from=' + number, undefined, function(dataInner) {
 			// get all messages
 			var messages = data.concat(dataInner);
 
