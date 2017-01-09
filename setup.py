@@ -11,7 +11,7 @@ setup(
     url='https://github.com/fkmclane/vbx',
     author='Foster McLane',
     author_email='fkmclane@gmail.com',
-    install_requires=['twilio=6.0.0rc12', 'slixmpp'],
+    install_requires=['twilio==6.0.0rc12', 'slixmpp'],
     packages=find_packages(),
     package_data={'': ['res/*.*']},
     entry_points = {'console_scripts': ['vbx = vbx.main']},
