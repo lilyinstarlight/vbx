@@ -151,7 +151,7 @@ var load = function() {
 
 			messageTime = next;
 
-			setTimeout(messageUpdate, 1000);
+			setTimeout(messageUpdate, 2000);
 		};
 
 		// initiate message updates
