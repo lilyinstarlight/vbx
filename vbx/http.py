@@ -1,3 +1,4 @@
+import datetime
 import urllib.parse
 
 import twilio.rest
@@ -53,12 +54,9 @@ class BrowserHandler(AccountHandler):
         return 200, {'number': vbx.config.number, 'token': token.generate()}
 
     def do_post(self):
-        try:
-            vbx.devices.browser.online = self.request.body['online']
+        vbx.devices.browser.last = datetime.datetime.now()
 
-            return 204, ''
-        except KeyError:
-            raise web.HTTPError(400)
+        return 204, ''
 
 
 class OutgoingHandler(AccountHandler):

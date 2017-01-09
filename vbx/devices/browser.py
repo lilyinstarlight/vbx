@@ -1,16 +1,17 @@
+import datetime
+
 import twilio.twiml
 
 import vbx
 
 
-online = False
+last = datetime.datetime.now()
+delta = datetime.timedelta(seconds=10)
 
 
 class Browser(vbx.Device):
     def online(self):
-        global online
-
-        return online
+        return (datetime.datetime.now() - last) > delta
 
     def dial(self, event, response):
         response.dial().client('vbx')

@@ -157,8 +157,15 @@ var load = function() {
 		// initiate message updates
 		messageUpdate();
 
-		// mark online
-		xhr('post', '/browser', {'online': true});
+		// setup ping callbacks
+		var pingUpdate = function() {
+			xhr('post', '/browser', {});
+
+			setTimeout(pingUpdate, 5000);
+		};
+
+		// initiate ping updates
+		pingUpdate();
 	});
 
 	// select nothing
@@ -166,11 +173,6 @@ var load = function() {
 
 	// show body
 	document.body.style.display = 'flex';
-};
-
-var unload = function() {
-	// mark offline
-	xhr('post', '/browser', {'online': false});
 };
 
 var open = function(number, date) {
@@ -407,4 +409,3 @@ var select = function(id) {
 };
 
 window.addEventListener('load', load);
-window.addEventListener('unload', unload);
