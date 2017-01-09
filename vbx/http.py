@@ -1,3 +1,5 @@
+import urllib.parse
+
 import twilio.rest
 import twilio.jwt.client
 
@@ -6,6 +8,7 @@ import web.file
 import web.form
 import web.json
 import web.page
+import web.query
 
 import vbx.config
 import vbx.events
@@ -34,10 +37,14 @@ class IndexPage(web.page.PageHandler):
 
 class AccountHandler(web.json.JSONHandler):
     def call_encode(self, call):
-        return {'annotation': call.annotation, 'date': call.date_created, 'direction': call.direction, 'duration': call.duration, 'from': call.from_formatted, 'to': call.to}
+        return {'annotation': call.annotation, 'date': call.date_created.isoformat(), 'direction': call.direction, 'duration': call.duration, 'from': call.from_formatted, 'to': call.to}
 
-    def message_encode(self, call):
-        return {'body': instance.body, 'date': instance.date_created, 'direction': instance.direction, 'from': instance.from_, 'to': instance.to}
+    def message_encode(self, msg):
+        return {'body': msg.body, 'date': msg.date_created.isoformat(), 'direction': msg.direction, 'from': msg.from_, 'to': msg.to}
+
+
+class ListHandler(AccountHandler, web.query.QueryMixIn):
+    pass
 
 
 class BrowserHandler(AccountHandler):
@@ -63,9 +70,12 @@ class ContactHandler(AccountHandler):
             raise web.HTTPError(404)
 
 
-class CallListHandler(AccountHandler):
+class CallListHandler(ListHandler):
     def do_get(self):
-        return 200, [self.call_encode(call) for call in client.calls.stream()]
+        try:
+            return 200, [self.call_encode(call) for call in client.calls.page(**self.request.query)]
+        except TypeError:
+            raise web.HTTPError(400)
 
 
 class CallHandler(AccountHandler):
@@ -88,9 +98,12 @@ class CallHandler(AccountHandler):
             raise web.HTTPError(404)
 
 
-class MessageListHandler(AccountHandler):
+class MessageListHandler(ListHandler):
     def do_get(self):
-        return 200, [self.message_encode(message) for message in client.messages.stream()]
+        try:
+            return 200, [self.message_encode(message) for message in client.messages.page(**self.request.query)]
+        except TypeError:
+            raise web.HTTPError(400)
 
 
 class MessageHandler(AccountHandler):
@@ -141,7 +154,7 @@ class MessageFlowHandler(FlowHandler):
             raise web.HTTPError(404)
 
 
-routes.update({'/': IndexPage, '/browser': BrowserHandler, '/contacts/': ContactListHandler, '/contacts/' + alias: ContactHandler, '/calls/': CallListHandler, '/calls/' + alias: CallHandler, '/msgs/': MessageListHandler, '/msgs/' + alias: MessageHandler, '/flow/voice/' + alias: CallFlowHandler, '/flow/msg/' + alias: MessageFlowHandler})
+routes.update({'/': IndexPage, '/browser': BrowserHandler, '/contacts/': ContactListHandler, '/contacts/' + alias: ContactHandler, '/calls/' + web.query.regex: CallListHandler, '/calls/' + alias: CallHandler, '/msgs/' + web.query.regex: MessageListHandler, '/msgs/' + alias: MessageHandler, '/flow/voice/' + alias: CallFlowHandler, '/flow/msg/' + alias: MessageFlowHandler})
 routes.update(web.file.new(vbx.config.resource, '/res'))
 error_routes.update(web.json.new_error())
 
