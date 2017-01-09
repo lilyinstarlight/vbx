@@ -53,9 +53,22 @@ class BrowserHandler(AccountHandler):
         return 200, {'number': vbx.config.number, 'token': token.generate()}
 
     def do_post(self):
-        vbx.devices.browser.online = self.request.body['online']
+        try:
+            vbx.devices.browser.online = self.request.body['online']
 
-        return 204, ''
+            return 204, ''
+        except KeyError:
+            raise web.HTTPError(400)
+
+
+class OutgoingHandler(AccountHandler):
+    def do_post(self):
+        try:
+            client.messages.create(self.request.body['to'], self.request.body['body'], vbx.config.number)
+
+            return 204, ''
+        except KeyError:
+            raise web.HTTPError(400)
 
 
 class ContactListHandler(AccountHandler):
@@ -67,7 +80,7 @@ class ContactHandler(AccountHandler):
     def do_get(self):
         try:
             return 200, vbx.config.contacts[self.groups[0]]
-        except:
+        except KeyError:
             raise web.HTTPError(404)
 
 
@@ -165,7 +178,7 @@ class MessageFlowHandler(FlowHandler):
             raise web.HTTPError(404)
 
 
-routes.update({'/': IndexPage, '/browser': BrowserHandler, '/contacts/': ContactListHandler, '/contacts/' + alias: ContactHandler, '/calls/' + query: CallListHandler, '/calls/' + alias: CallHandler, '/msgs/' + query: MessageListHandler, '/msgs/' + alias: MessageHandler, '/flow/voice/' + alias: CallFlowHandler, '/flow/msg/' + alias: MessageFlowHandler})
+routes.update({'/': IndexPage, '/browser': BrowserHandler, '/msg': OutgoingHandler, '/contacts/': ContactListHandler, '/contacts/' + alias: ContactHandler, '/calls/' + query: CallListHandler, '/calls/' + alias: CallHandler, '/msgs/' + query: MessageListHandler, '/msgs/' + alias: MessageHandler, '/flow/voice/' + alias: CallFlowHandler, '/flow/msg/' + alias: MessageFlowHandler})
 routes.update(web.file.new(vbx.config.resource, '/res'))
 error_routes.update(web.json.new_error())
 
