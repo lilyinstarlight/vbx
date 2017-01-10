@@ -44,14 +44,14 @@ class XMPPComponent(slixmpp.ComponentXMPP):
         self.add_event_handler('got_offline', self.set_offline)
         self.add_event_handler('got_online', self.set_online)
 
-        self.connect():
+        self.connect()
 
         while True:
             self.process(timeout=0.5)
 
             try:
-                args = self.queue.get_nowait()
-                self._send(*args)
+                args = self.twilio_queue.get_nowait()
+                self._send_from_twilio(*args)
             except queue.Empty:
                 pass
 
