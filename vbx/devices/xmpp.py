@@ -39,6 +39,12 @@ class XMPPComponent(slixmpp.ComponentXMPP):
 
         super().__init__(jid, secret, server, port)
 
+        self.register_plugin('xep_0030') # service discovery
+        self.register_plugin('xep_0004') # data forms
+        self.register_plugin('xep_0060') # pubsub
+        self.register_plugin('xep_0199') # ping
+        self.register_plugin('xep_0172') # nick
+
         self.add_event_handler('session_start', self.session_start)
         self.add_event_handler('message', self.recv_from_xmpp)
         self.add_event_handler('got_offline', self.set_offline)
@@ -57,7 +63,6 @@ class XMPPComponent(slixmpp.ComponentXMPP):
 
     def session_start(self, data):
         self.vbx_config = importlib.import_module('vbx.config')
-        self.vbx_config.revcontacts = {contact: number for number, contact in self.vbx_config.contacts.items()}
 
         self.twilio_client = twilio.rest.Client(username=self.vbx_config.auth[0], password=self.vbx_config.auth[1])
 
@@ -69,27 +74,24 @@ class XMPPComponent(slixmpp.ComponentXMPP):
 
         to = msg['to'].node
 
-        if to in self.vbx_config.revcontacts:
-            to = self.vbx_config.revcontacts[to]
-
         self.twilio_client.messages.create(to, body=msg['body'], from_=self.vbx_config.number)
 
     def _send_from_twilio(self, event, msg):
         if not self.vbx_config:
             return
 
-        from_ = event.from_
+        from_ = event.from_ + '@' + self.boundjid.domain
 
-        if from_ in self.vbx_config.contacts:
-            from_ = self.vbx_config.contacts[from_]
-
-        self.send_message(self.target, msg, mfrom=from_ + '@' + self.boundjid.domain)
+        self.send_message(self.target, msg, mfrom=from_)
 
     def set_offline(self, data):
         self.target_online = False
 
     def set_online(self, data):
         self.target_online = True
+
+        for number, name in self.vbx_config.contacts.items():
+            self.send_presence(pto=self.target, pfrom=number + '@' + self.boundjid.domain, pnick=name, ptype='available')
 
     def send_from_twilio(self, event, msg):
         self.twilio_queue.put((event, msg))
