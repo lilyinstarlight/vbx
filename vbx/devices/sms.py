@@ -5,4 +5,4 @@ class SMS(vbx.Device):
         self.number = number
 
     def send(self, event, message, response):
-        response.message(message, to=self.number, sender=event.from_)
+        response.message(message, to=self.number)
