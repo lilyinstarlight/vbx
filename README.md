@@ -1,7 +1,7 @@
 vbx
 ===
 
-vbx is an application for managing Twilio numbers. It features a browser interface with making and receiving calls and ability to see messages to and from your contacts. It additionally features the ability to connect arbitrary flows that optionally connect to devices it determines are online. See below for how to write simple flows.
+vbx is an application for managing Twilio numbers. It features a browser interface with making and receiving calls and ability to see messages to and from your contacts. It additionally features the ability to connect arbitrary flows that optionally connect to devices it determines are online. It does not feature any ability to login or password protect so I recommend running it behind a reverse-proxy server (such as nginx) and use its HTTP authentication to protect all resources except for the '/flow' resource. See below for how to write simple flows.
 
 
 Flow File
