@@ -78,7 +78,7 @@ class XMPPComponent(slixmpp.ComponentXMPP):
         if not self.vbx_config:
             return
 
-        from_ = event['From']
+        from_ = event.from_
 
         if from_ in self.vbx_config.contacts:
             from_ = self.vbx_config.contacts[from_]
