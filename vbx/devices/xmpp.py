@@ -91,5 +91,5 @@ class XMPPComponent(slixmpp.ComponentXMPP):
     def set_online(self, data):
         self.target_online = True
 
-    def send(self, event, msg):
+    def send_from_twilio(self, event, msg):
         self.twilio_queue.put((event, msg))
