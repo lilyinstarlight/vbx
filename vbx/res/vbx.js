@@ -261,7 +261,7 @@ var open = function(number, date) {
 				time.innerText += ' ';
 				time.innerText += ('0' + date.getHours()).slice(-2);
 				time.innerText += ':';
-				time.innerText += ('0' + date.getSeconds()).slice(-2);
+				time.innerText += ('0' + date.getMinutes()).slice(-2);
 
 				// add body
 				var p = document.createElement('p');
