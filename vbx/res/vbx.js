@@ -4,6 +4,8 @@ var main = null;
 var conversations = [];
 var contacts = null;
 var phone = null;
+var message = null;
+var message_number = null;
 var last = null;
 var state = 'idle';
 var statusline = null;
@@ -40,11 +42,13 @@ var xhr = function(method, resource, data, callback) {
 var load = function() {
 	// get elements
 	nav = document.getElementById('nav');
-	buttons = [document.getElementById('button_contacts'), document.getElementById('button_phone')];
+	buttons = [document.getElementById('button_contacts'), document.getElementById('button_message'), document.getElementById('button_phone')];
 	main = document.getElementById('main');
 	conversations = [];
 	contacts = document.getElementById('contacts');
 	phone = document.getElementById('phone');
+	message = document.getElementById('message');
+	message_number = document.getElementById('message_number');
 	statusline = document.getElementById('status');
 
 	contact = {};
@@ -189,7 +193,7 @@ var open = function(number, date) {
 		input.type = 'text';
 		input.placeholder = 'Enter Message Here...';
 		input.addEventListener('keyup', function(ev) {
-			if (ev.keyCode == 13) {
+			if (ev.keyCode === 13) {
 				ev.preventDefault();
 				xhr('post', '/msg', {'to': number, 'body': input.value});
 				input.value = '';
@@ -321,6 +325,13 @@ var close = function(number) {
 };
 
 var click = function(key) {
+	if (key === 'message') {
+		window.open(message_number.value);
+		message_number.value = '';
+
+		return;
+	}
+
 	if (state === 'connecting' || state === 'connected') {
 		if (key === 'hangup') {
 			hangup();
@@ -350,7 +361,7 @@ var click = function(key) {
 			call(statusline.innerText);
 		}
 		else if (key === 'hangup') {
-			statusline.innerText = 'Dial a Number';
+			statusline.innerText = 'Dial a Number...';
 
 			state = 'idle';
 		}
@@ -393,10 +404,18 @@ var hangup = function() {
 };
 
 var select = function(id) {
-	if (id === 'toggle') {
+	if (id === 'toggle_phone') {
 		if (phone.style.display === 'none')
 			// behave as though phone were selected
 			id = 'phone';
+		else
+			// behave as though last were selected
+			id = last;
+	}
+	else if (id === 'toggle_message') {
+		if (message.style.display === 'none')
+			// behave as though message were selected
+			id = 'message';
 		else
 			// behave as though last were selected
 			id = last;
@@ -405,6 +424,12 @@ var select = function(id) {
 	if (id === 'phone') {
 		// simply display phone
 		phone.style.display = '';
+		message.style.display = 'none';
+	}
+	else if (id === 'message') {
+		// display message
+		message.style.display = '';
+		phone.style.display = 'none';
 	}
 	else {
 		// close all conversations
@@ -414,6 +439,7 @@ var select = function(id) {
 
 		// close phone and contacts
 		contacts.style.display = 'none';
+		message.style.display = 'none';
 		phone.style.display = 'none';
 
 		// display requested section
@@ -435,7 +461,7 @@ var select = function(id) {
 	if (id !== null)
 		document.getElementById('button_' + id).classList.add('active');
 
-	if (id !== 'phone')
+	if (id !== 'phone' && id !== 'message')
 		last = id;
 };
 

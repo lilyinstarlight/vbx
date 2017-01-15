@@ -11,7 +11,8 @@
 
 	<body>
 		<header id="nav">
-			<button id="button_phone" class="right" onclick="window.select('toggle')">Phone</button>
+			<button id="button_phone" class="right" onclick="window.select('toggle_phone')">Phone</button>
+			<button id="button_message" class="right" onclick="window.select('toggle_message')">Message</button>
 			<button id="button_contacts" class="right" onclick="window.select('contacts')">Contacts</button>
 		</header>
 
@@ -21,8 +22,12 @@
 				</ul>
 			</div>
 
+			<div id="message" class="message">
+				<input id="message_number" type="text" placeholder="Enter a Number..." onkeyup="if (event.keyCode === 13) { event.preventDefault(); window.click('message'); }"/>
+			</div>
+
 			<div id="phone" class="phone">
-				<p id="status">Dial a Number</p>
+				<p id="status">Dial a Number...</p>
 
 				<table>
 					<tbody>
