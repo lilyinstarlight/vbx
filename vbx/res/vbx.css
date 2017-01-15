@@ -20,6 +20,11 @@ header::after {
 	clear: both;
 }
 
+header > div {
+	position: relative;
+	display: inline;
+}
+
 main {
 	position: relative;
 	display: flex;
@@ -224,6 +229,16 @@ button:hover {
 
 button.active {
 	background: #555;
+}
+
+button.close {
+	background: transparent;
+	position: absolute;
+	width: 1em;
+	height: 1em;
+	padding: 0em;
+	right: 1em;
+	top: 0em;
 }
 
 .left {

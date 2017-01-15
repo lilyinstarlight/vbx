@@ -1,5 +1,5 @@
-var buttons = null;
-var button = [];
+var nav = null;
+var buttons = [];
 var main = null;
 var conversations = [];
 var contacts = null;
@@ -39,8 +39,8 @@ var xhr = function(method, resource, data, callback) {
 
 var load = function() {
 	// get elements
-	buttons = document.getElementById('buttons');
-	button = document.getElementById('buttons').children;
+	nav = document.getElementById('nav');
+	buttons = [document.getElementById('button_contacts'), document.getElementById('button_phone')];
 	main = document.getElementById('main');
 	conversations = [];
 	contacts = document.getElementById('contacts');
@@ -203,6 +203,9 @@ var open = function(number, date) {
 		conversations.push(chat);
 
 		// create button
+		var container = document.createElement('div');
+		container.id = 'nav_' + number;
+
 		var button = document.createElement('button');
 		button.id = 'button_' + number;
 		if (number in contact)
@@ -211,7 +214,17 @@ var open = function(number, date) {
 			button.innerText = number;
 		button.addEventListener('click', function(ev) { window.select(number) });
 
-		buttons.insertBefore(button, buttons.firstChild);
+		buttons.push(button);
+
+		var close = document.createElement('button');
+		close.classList.add('close');
+		close.innerText = '×';
+		close.addEventListener('click', function(ev) { window.close(number) });
+
+		container.appendChild(button);
+		container.appendChild(close);
+
+		nav.insertBefore(container, nav.firstChild);
 
 		// load a page of messages instead of new
 		date = undefined;
@@ -285,11 +298,23 @@ var open = function(number, date) {
 };
 
 var close = function(number) {
-	if (conversations.indexOf(number) === -1)
+	var chat = document.getElementById(number);
+
+	if (chat === null)
 		return;
 
 	// remove chat block
-	main.removeChild(conversations[number]);
+	main.removeChild(chat);
+	conversations.splice(conversations.indexOf(chat), 1);
+
+	var container = document.getElementById('nav_' + number);
+
+	if (container === null)
+		return;
+
+	// remove button
+	nav.removeChild(container);
+	buttons.splice(buttons.indexOf(container.children[0]), 1);
 
 	// bring last thing forward
 	select(last);
@@ -392,13 +417,19 @@ var select = function(id) {
 		phone.style.display = 'none';
 
 		// display requested section
-		if (id !== null)
-			document.getElementById(id).style.display = '';
+		if (id !== null) {
+			var target = document.getElementById(id);
+			if (target !== null)
+				target.style.display = '';
+			else
+				id = null;
+		}
 	}
 
 	// disable all buttons
-	for (var idx = 0; idx < button.length; idx++)
-		button[idx].classList.remove('active');
+	buttons.forEach(function(element) {
+		element.classList.remove('active');
+	});
 
 	// mark respective button as active
 	if (id !== null)
