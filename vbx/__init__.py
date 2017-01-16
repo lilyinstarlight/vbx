@@ -1,5 +1,5 @@
 name = 'vbx'
-version = '0.1'
+version = '0.2'
 
 from .device import Device
 from .event import Event
