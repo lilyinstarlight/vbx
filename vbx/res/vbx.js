@@ -207,8 +207,8 @@ var open = function(number, message) {
 		conversations.push(chat);
 
 		// create button
-		var container = document.createElement('div');
-		container.id = 'nav_' + number;
+		var button_container = document.createElement('div');
+		button_container.id = 'nav_' + number;
 
 		var button = document.createElement('button');
 		button.id = 'button_' + number;
@@ -225,10 +225,10 @@ var open = function(number, message) {
 		close.innerText = '×';
 		close.addEventListener('click', function(ev) { window.close(number) });
 
-		container.appendChild(button);
-		container.appendChild(close);
+		button_container.appendChild(button);
+		button_container.appendChild(close);
 
-		nav.insertBefore(container, nav.firstChild);
+		nav.insertBefore(button_container, nav.firstChild);
 
 		return container;
 	}
