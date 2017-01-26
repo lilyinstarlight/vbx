@@ -288,7 +288,7 @@ var open = function(number, message) {
 
 				// generate elements
 				messages.forEach(function(message) {
-					write(message);
+					write(container, message);
 				});
 
 				// scroll chat down
@@ -302,7 +302,7 @@ var open = function(number, message) {
 
 		// load given message
 		if (message !== undefined)
-			write(message);
+			write(container, message);
 
 		// scroll chat down
 		container.scrollTop = 2147483646;
