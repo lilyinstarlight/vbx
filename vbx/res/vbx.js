@@ -229,12 +229,11 @@ var open = function(number, message) {
 		container.appendChild(close);
 
 		nav.insertBefore(container, nav.firstChild);
+
+		return container;
 	}
 
-	var write = function(message) {
-		// get container
-		var container = document.getElementById(number).children[0];
-
+	var write = function(container, message) {
 		// create chat bubble
 		var div = document.createElement('div');
 
@@ -274,7 +273,7 @@ var open = function(number, message) {
 
 	if (document.getElementById(number) === null) {
 		// show number
-		show(number);
+		var container = show(number);
 
 		// load chat
 		xhr('get', '/msgs/?to=' + number, undefined, function(data) {
@@ -298,6 +297,9 @@ var open = function(number, message) {
 		});
 	}
 	else {
+		// get container
+		var container = document.getElementById(number).children[0];
+
 		// load given message
 		if (message !== undefined)
 			write(message);
