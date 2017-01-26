@@ -277,8 +277,8 @@ var open = function(number, message) {
 		show(number);
 
 		// load chat
-		xhr('get', base + 'to=' + number, undefined, function(data) {
-			xhr('get', base + 'from=' + number, undefined, function(dataInner) {
+		xhr('get', '/msgs/?to=' + number, undefined, function(data) {
+			xhr('get', '/msgs/?from=' + number, undefined, function(dataInner) {
 				// get all messages
 				var messages = data.concat(dataInner);
 
