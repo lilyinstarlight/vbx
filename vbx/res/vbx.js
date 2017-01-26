@@ -138,18 +138,21 @@ var load = function() {
 
 		// setup message callbacks
 		var messageUpdate = function() {
-			var current = messageTime;
-			var next = new Date().toISOString();
+			var currentTime = messageTime;
+			var current = messageTime.toISOString();
+			var next = new Date();
 
 			xhr('get', '/msgs/?date_sent_after=' + current + '&to=' + number, undefined, function(data) {
 				data.forEach(function(message) {
-					window.open(message.from, message);
+					if ((new Date(message.date)) < currentTime)
+						window.open(message.from, message);
 				});
 			});
 
 			xhr('get', '/msgs/?date_sent_after=' + current + '&from=' + number, undefined, function(data) {
 				data.forEach(function(message) {
-					window.open(message.to, message);
+					if ((new Date(message.date)) < currentTime)
+						window.open(message.to, message);
 				});
 			});
 
