@@ -142,14 +142,14 @@ var load = function() {
 			var next = new Date().toISOString();
 
 			xhr('get', '/msgs/?date_sent_after=' + current + '&to=' + number, undefined, function(data) {
-				data.forEach(function(msg) {
-					window.open(msg.from, current);
+				data.forEach(function(message) {
+					window.open(message.from, message);
 				});
 			});
 
 			xhr('get', '/msgs/?date_sent_after=' + current + '&from=' + number, undefined, function(data) {
-				data.forEach(function(msg) {
-					window.open(msg.to, current);
+				data.forEach(function(message) {
+					window.open(message.to, message);
 				});
 			});
 
@@ -179,8 +179,8 @@ var load = function() {
 	document.body.style.display = 'flex';
 };
 
-var open = function(number, date) {
-	if (document.getElementById(number) === null) {
+var open = function(number, message) {
+	var show = function(number) {
 		// create new chat block
 		var chat = document.createElement('div');
 		chat.id = number;
@@ -229,76 +229,85 @@ var open = function(number, date) {
 		container.appendChild(close);
 
 		nav.insertBefore(container, nav.firstChild);
-
-		// load a page of messages instead of new
-		date = undefined;
 	}
 
-	base = '/msgs/?';
+	var write = function(message) {
+		// get container
+		var container = document.getElementById(number).children[0];
 
-	if (date !== undefined)
-		base += 'date_sent_after=' + date + '&';
+		// create chat bubble
+		var div = document.createElement('div');
 
-	// load chat
-	xhr('get', base + 'to=' + number, undefined, function(data) {
-		xhr('get', base + 'from=' + number, undefined, function(dataInner) {
-			// get all messages
-			var messages = data.concat(dataInner);
+		// set class based on whether this was sent or receieved
+		if (message.from === number)
+			div.classList.add('me');
+		else
+			div.classList.add('you');
 
-			// get container
-			var container = document.getElementById(number).children[0];
+		// get message time
+		var date = new Date(message.date);
 
-			// sort by date
-			messages.sort(function(left, right) {
-				return new Date(left.date) - new Date(right.date);
+		// format time
+		var time = document.createElement('time');
+		time.innerText = '';
+		time.innerText += date.getFullYear();
+		time.innerText += '-';
+		time.innerText += ('0' + (date.getMonth() + 1)).slice(-2);
+		time.innerText += '-';
+		time.innerText += ('0' + date.getDate()).slice(-2);
+		time.innerText += ' ';
+		time.innerText += ('0' + date.getHours()).slice(-2);
+		time.innerText += ':';
+		time.innerText += ('0' + date.getMinutes()).slice(-2);
+
+		// add body
+		var p = document.createElement('p');
+		p.innerText = message.body;
+
+		// join time and body into message
+		div.appendChild(time);
+		div.appendChild(p);
+
+		// add message to chat window
+		container.appendChild(div);
+	}
+
+	if (document.getElementById(number) === null) {
+		// show number
+		show(number);
+
+		// load chat
+		xhr('get', base + 'to=' + number, undefined, function(data) {
+			xhr('get', base + 'from=' + number, undefined, function(dataInner) {
+				// get all messages
+				var messages = data.concat(dataInner);
+
+				// sort by date
+				messages.sort(function(left, right) {
+					return new Date(left.date) - new Date(right.date);
+				});
+
+				// generate elements
+				messages.forEach(function(message) {
+					write(message);
+				});
+
+				// scroll chat down
+				container.scrollTop = 2147483646;
 			});
-
-			// generate elements
-			messages.forEach(function(message) {
-				// create chat bubble
-				var div = document.createElement('div');
-
-				// set class based on whether this was sent or receieved
-				if (message.from === number)
-					div.classList.add('me');
-				else
-					div.classList.add('you');
-
-				// get message time
-				var date = new Date(message.date);
-
-				// format time
-				var time = document.createElement('time');
-				time.innerText = '';
-				time.innerText += date.getFullYear();
-				time.innerText += '-';
-				time.innerText += ('0' + (date.getMonth() + 1)).slice(-2);
-				time.innerText += '-';
-				time.innerText += ('0' + date.getDate()).slice(-2);
-				time.innerText += ' ';
-				time.innerText += ('0' + date.getHours()).slice(-2);
-				time.innerText += ':';
-				time.innerText += ('0' + date.getMinutes()).slice(-2);
-
-				// add body
-				var p = document.createElement('p');
-				p.innerText = message.body;
-
-				// join time and body into message
-				div.appendChild(time);
-				div.appendChild(p);
-
-				// add message to chat window
-				container.appendChild(div);
-			});
-
-			// bring chat forward
-			select(number);
-
-			// scroll chat down
-			container.scrollTop = 2147483646;
 		});
-	});
+	}
+	else {
+		// load given message
+		if (message !== undefined)
+			write(message);
+
+		// scroll chat down
+		container.scrollTop = 2147483646;
+	}
+
+	// bring chat forward
+	select(number);
 };
 
 var close = function(number) {
