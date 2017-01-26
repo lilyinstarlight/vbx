@@ -236,7 +236,7 @@ var open = function(number, message) {
 		return container;
 	}
 
-	var write = function(container, message) {
+	var write = function(container, number, message) {
 		// create chat bubble
 		var div = document.createElement('div');
 
@@ -278,6 +278,9 @@ var open = function(number, message) {
 		// show number
 		var container = show(number);
 
+		// bring chat forward
+		select(number);
+
 		// load chat
 		xhr('get', '/msgs/?to=' + number, undefined, function(data) {
 			xhr('get', '/msgs/?from=' + number, undefined, function(dataInner) {
@@ -291,7 +294,7 @@ var open = function(number, message) {
 
 				// generate elements
 				messages.forEach(function(message) {
-					write(container, message);
+					write(container, number, message);
 				});
 
 				// scroll chat down
@@ -303,16 +306,16 @@ var open = function(number, message) {
 		// get container
 		var container = document.getElementById(number).children[0];
 
+		// bring chat forward
+		select(number);
+
 		// load given message
 		if (message !== undefined)
-			write(container, message);
+			write(container, number, message);
 
 		// scroll chat down
 		container.scrollTop = 2147483646;
 	}
-
-	// bring chat forward
-	select(number);
 };
 
 var close = function(number) {
