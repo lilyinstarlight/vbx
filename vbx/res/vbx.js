@@ -18,7 +18,7 @@ var token = null;
 var connection = null;
 var incoming = null;
 
-var messageTime = new Date().toISOString();
+var messageTime = new Date();
 
 var xhr = function(method, resource, data, callback) {
 	var req = new XMLHttpRequest();
