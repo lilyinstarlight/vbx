@@ -140,7 +140,7 @@ var load = function() {
 		var messageUpdate = function() {
 			var currentTime = messageTime;
 			var current = messageTime.toISOString();
-			var next = new Date();
+			var nextTime = new Date();
 
 			xhr('get', '/msgs/?date_sent_after=' + current + '&to=' + number, undefined, function(data) {
 				data.forEach(function(message) {
@@ -156,7 +156,7 @@ var load = function() {
 				});
 			});
 
-			messageTime = next;
+			messageTime = nextTime;
 
 			setTimeout(messageUpdate, 2000);
 		};
