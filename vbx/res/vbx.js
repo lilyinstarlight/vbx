@@ -143,13 +143,13 @@ var load = function() {
 
 			xhr('get', '/msgs/?date_sent_after=' + current + '&to=' + number, undefined, function(data) {
 				data.forEach(function(msg) {
-					open(msg.from, current);
+					window.open(msg.from, current);
 				});
 			});
 
 			xhr('get', '/msgs/?date_sent_after=' + current + '&from=' + number, undefined, function(data) {
 				data.forEach(function(msg) {
-					open(msg.to, current);
+					window.open(msg.to, current);
 				});
 			});
 
