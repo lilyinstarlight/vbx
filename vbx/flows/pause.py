@@ -1,5 +1,6 @@
 import vbx
 
+
 class Pause(vbx.Flow):
     def __init__(self, length, **kwargs):
         self.length = length

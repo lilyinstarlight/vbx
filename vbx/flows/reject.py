@@ -1,5 +1,6 @@
 import vbx
 
+
 class Reject(vbx.Flow):
     def __init__(self, reason=None, **kwargs):
         self.reason = reason

@@ -2,6 +2,7 @@ import twilio.twiml
 
 import vbx
 
+
 class Message(vbx.Event):
     def __init__(self, request):
         super().__init__(request)

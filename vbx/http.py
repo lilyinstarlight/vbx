@@ -1,5 +1,4 @@
 import datetime
-import urllib.parse
 
 import twilio.rest
 import twilio.jwt.client

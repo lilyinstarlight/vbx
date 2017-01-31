@@ -1,5 +1,6 @@
 import vbx
 
+
 class Redirect(vbx.Flow):
     def __init__(self, url, **kwargs):
         self.url = url

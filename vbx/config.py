@@ -1,3 +1,5 @@
+import os
+
 import vbx.devices
 import vbx.flows
 
@@ -9,7 +11,6 @@ log = '/var/log/vbx/vbx.log'
 httplog = '/var/log/vbx/http.log'
 
 # template directory to use
-import os.path
 template = os.path.dirname(__file__) + '/html'
 resource = os.path.dirname(__file__) + '/res'
 

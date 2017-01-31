@@ -1,5 +1,6 @@
 import vbx
 
+
 class Dial(vbx.Flow):
     def __init__(self, number=None, client=None, conference=None, queue=None, sip=None, **kwargs):
         self.number = number

@@ -1,5 +1,6 @@
 import vbx
 
+
 class Device(vbx.Flow):
     def __init__(self, devices, **kwargs):
         self.devices = devices
@@ -14,7 +15,7 @@ class Device(vbx.Flow):
                 break
         else:
             for device in self.devices:
-                if device.online() == None:
+                if device.online() is None:
                     device.dial(event, response)
                     self.completed = True
                     break
@@ -27,7 +28,7 @@ class Device(vbx.Flow):
                 break
         else:
             for device in self.devices:
-                if device.online() == None:
+                if device.online() is None:
                     device.send(event, message, response)
                     self.completed = True
                     break

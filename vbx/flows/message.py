@@ -1,5 +1,6 @@
 import vbx
 
+
 class Message(vbx.Flow):
     def __init__(self, message, to=None, **kwargs):
         self.message = message

@@ -4,6 +4,7 @@ from email.mime.text import MIMEText
 
 import vbx
 
+
 class Email(vbx.Device):
     def __init__(self, from_, to):
         self.from_ = from_

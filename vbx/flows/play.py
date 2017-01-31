@@ -1,5 +1,6 @@
 import vbx
 
+
 class Play(vbx.Flow):
     def __init__(self, url=None, digits=None, loop=1, **kwargs):
         self.url = url

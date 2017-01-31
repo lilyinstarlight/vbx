@@ -31,11 +31,11 @@ class XMPP(vbx.Device):
 
                 super().__init__(jid, secret, server, port)
 
-                self.register_plugin('xep_0030') # service discovery
-                self.register_plugin('xep_0004') # data forms
-                self.register_plugin('xep_0060') # pubsub
-                self.register_plugin('xep_0199') # ping
-                self.register_plugin('xep_0172') # nick
+                self.register_plugin('xep_0030')  # service discovery
+                self.register_plugin('xep_0004')  # data forms
+                self.register_plugin('xep_0060')  # pubsub
+                self.register_plugin('xep_0199')  # ping
+                self.register_plugin('xep_0172')  # nick
 
                 self.add_event_handler('session_start', self.session_start)
                 self.add_event_handler('message', self.recv_from_xmpp)
@@ -104,4 +104,3 @@ class XMPP(vbx.Device):
 
     def send(self, event, message, response):
         self.component.send_from_twilio(event, message)
-
