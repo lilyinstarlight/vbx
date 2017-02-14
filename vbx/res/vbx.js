@@ -144,14 +144,14 @@ var load = function() {
 
 			xhr('get', '/msgs/?date_sent_after=' + current + '&to=' + number, undefined, function(data) {
 				data.forEach(function(message) {
-					if ((new Date(message.date)) < currentTime)
+					if ((new Date(message.date)) < nextTime)
 						window.open(message.from, message);
 				});
 			});
 
 			xhr('get', '/msgs/?date_sent_after=' + current + '&from=' + number, undefined, function(data) {
 				data.forEach(function(message) {
-					if ((new Date(message.date)) < currentTime)
+					if ((new Date(message.date)) < nextTime)
 						window.open(message.to, message);
 				});
 			});
