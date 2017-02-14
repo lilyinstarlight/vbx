@@ -144,15 +144,13 @@ var load = function() {
 
 			xhr('get', '/msgs/?date_sent_after=' + current + '&to=' + number, undefined, function(data) {
 				data.forEach(function(message) {
-					if ((new Date(message.date)) < nextTime)
-						window.open(message.from, message);
+					window.open(message.from, message);
 				});
 			});
 
 			xhr('get', '/msgs/?date_sent_after=' + current + '&from=' + number, undefined, function(data) {
 				data.forEach(function(message) {
-					if ((new Date(message.date)) < nextTime)
-						window.open(message.to, message);
+					window.open(message.to, message);
 				});
 			});
 
@@ -237,8 +235,13 @@ var open = function(number, message) {
 	}
 
 	var write = function(container, number, message) {
+		// prevent double writes
+		if (document.getElementById(message.sid) !== null)
+			return;
+
 		// create chat bubble
 		var div = document.createElement('div');
+		div.id = message.sid;
 
 		// set class based on whether this was sent or receieved
 		if (message.from === number)
