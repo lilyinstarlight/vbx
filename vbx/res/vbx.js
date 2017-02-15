@@ -41,7 +41,7 @@ var xhr = function(method, resource, data, callback) {
 
 var notify = function(message) {
 	if (Notification.permission === 'granted')
-		var notification = new Notification(message.from in contact ? contact[message.from] : message.from + ': ' + message.body);
+		var notification = new Notification((message.from in contact ? contact[message.from] : message.from) + ': ' + message.body);
 };
 
 if (Notification.permission !== 'granted' && Notification.permission !== 'denied')
