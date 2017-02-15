@@ -383,6 +383,10 @@ var click = function(key) {
 			// do nothing
 		}
 		else {
+			// convert first 0 to a +
+			if (key === '0')
+				key = '+';
+
 			statusline.innerText = key;
 		}
 
