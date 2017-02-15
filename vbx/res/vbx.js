@@ -39,6 +39,14 @@ var xhr = function(method, resource, data, callback) {
 	}
 };
 
+var notify = function(message) {
+	if (Notification.permission === 'granted')
+		var notification = new Notification(message.from in contact ? contact[message.from] : message.from + ': ' + message.body);
+};
+
+if (Notification.permission !== 'granted' && Notification.permission !== 'denied')
+	Notification.requestPermission();
+
 var load = function() {
 	// get elements
 	nav = document.getElementById('nav');
@@ -144,6 +152,9 @@ var load = function() {
 
 			xhr('get', '/msgs/?date_sent_after=' + current + '&to=' + number, undefined, function(data) {
 				data.forEach(function(message) {
+					if (!document.hasFocus())
+						window.notify(message);
+
 					window.open(message.from, message);
 				});
 			});
