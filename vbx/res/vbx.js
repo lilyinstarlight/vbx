@@ -152,16 +152,21 @@ var load = function() {
 
 			xhr('get', '/msgs/?date_sent_after=' + current + '&to=' + number, undefined, function(data) {
 				data.forEach(function(message) {
-					if (!document.hasFocus())
-						window.notify(message);
+					// prevent double writes
+					if (document.getElementById(message.sid) === null) {
+						if (!document.hasFocus())
+							window.notify(message);
 
-					window.open(message.from, message);
+						window.open(message.from, message);
+					}
 				});
 			});
 
 			xhr('get', '/msgs/?date_sent_after=' + current + '&from=' + number, undefined, function(data) {
 				data.forEach(function(message) {
-					window.open(message.to, message);
+					// prevent double writes
+					if (document.getElementById(message.sid) === null)
+						window.open(message.to, message);
 				});
 			});
 
@@ -246,10 +251,6 @@ var open = function(number, message) {
 	}
 
 	var write = function(container, number, message) {
-		// prevent double writes
-		if (document.getElementById(message.sid) !== null)
-			return;
-
 		// create chat bubble
 		var div = document.createElement('div');
 		div.id = message.sid;
