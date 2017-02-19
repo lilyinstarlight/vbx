@@ -129,6 +129,9 @@ var load = function() {
 
 			statusline.innerText = 'Incoming Call From ' + from;
 
+			if (!document.hasFocus())
+				window.notify(statusline.innerText);
+
 			// open phone
 			select('phone');
 		});
