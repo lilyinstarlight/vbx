@@ -41,7 +41,7 @@ var xhr = function(method, resource, data, callback) {
 
 var notify = function(message) {
 	if (Notification.permission === 'granted')
-		var notification = new Notification((message.from in contact ? contact[message.from] : message.from) + ': ' + message.body);
+		var notification = new Notification(message);
 };
 
 if (Notification.permission !== 'granted' && Notification.permission !== 'denied')
@@ -106,17 +106,17 @@ var load = function() {
 		// setup Twilio.Device
 		Twilio.Device.setup(token);
 
-		Twilio.Device.connect(function (conn) {
+		Twilio.Device.connect(function(conn) {
 			state = 'connected';
 			statusline.innerText = 'Connected.';
 		});
 
-		Twilio.Device.disconnect(function (conn) {
+		Twilio.Device.disconnect(function(conn) {
 			state = 'idle';
 			statusline.innerText = 'Dial a Number';
 		});
 
-		Twilio.Device.incoming(function (conn) {
+		Twilio.Device.incoming(function(conn) {
 			state = 'incoming';
 
 			incoming = conn;
@@ -134,6 +134,11 @@ var load = function() {
 
 			// open phone
 			select('phone');
+		});
+
+		Twilio.Device.cancel(function(conn) {
+			state = 'idle';
+			statusline.innerText = 'Dial a Number';
 		});
 
 		Twilio.Device.offline(function(device) {
@@ -158,7 +163,7 @@ var load = function() {
 					// prevent double writes
 					if (document.getElementById(message.sid) === null) {
 						if (!document.hasFocus())
-							window.notify(message);
+							window.notify((message.from in contact ? contact[message.from] : message.from) + ': ' + message.body);
 
 						window.open(message.from, message);
 					}
