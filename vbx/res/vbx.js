@@ -139,6 +139,9 @@ var load = function() {
 		Twilio.Device.cancel(function(conn) {
 			state = 'idle';
 			statusline.innerText = 'Dial a Number';
+
+			// close phone
+			select(last);
 		});
 
 		Twilio.Device.offline(function(device) {
