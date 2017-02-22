@@ -69,6 +69,7 @@ main {
 .chat .you > p, .chat .me > p {
 	margin-top: 1em;
 	margin-bottom: 0em;
+	overflow-wrap: break-word;
 }
 
 .chat .you::after, .chat .me::after {
