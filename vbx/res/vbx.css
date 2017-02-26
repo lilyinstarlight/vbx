@@ -57,6 +57,10 @@ main {
 	font-size: 0.6em;
 }
 
+.chat embed {
+	width: 20em;
+}
+
 .chat .you, .chat .me {
 	background: #222;
 	position: relative;
