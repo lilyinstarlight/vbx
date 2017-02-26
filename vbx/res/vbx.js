@@ -296,6 +296,15 @@ var open = function(number, message) {
 		div.appendChild(time);
 		div.appendChild(p);
 
+		// add media if necessary
+		if (messsage.media_url !== null) {
+			var embed = document.createElement('embed');
+			embed.src = message.media_url;
+			embed.type = message.media_type;
+
+			div.appendChild(embed);
+		}
+
 		// add message to chat window
 		container.appendChild(div);
 	}

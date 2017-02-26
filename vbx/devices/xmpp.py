@@ -77,7 +77,11 @@ class XMPP(vbx.Device):
 
                 from_ = event.from_ + '@' + self.boundjid.domain
 
-                self.send_message(self.target, msg, mfrom=from_)
+                if msg:
+                    self.send_message(self.target, msg, mfrom=from_)
+
+                if event.media_url:
+                    self.send_message(self.target, 'Media: ' + event.media_url, mfrom=from_)
 
             def set_offline(self, presence):
                 if presence['from'].bare != self.target:
