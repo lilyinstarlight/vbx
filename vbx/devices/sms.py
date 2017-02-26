@@ -15,10 +15,10 @@ class SMS(vbx.Device):
 
             if event.from_ in vbx.config.contacts:
                 from_ = vbx.config.contacts[events.from_]
-            else
+            else:
                 from_ = events.from_
 
-            msg = response.message('From: ' + from_ + '\n' + message, to=self.number)
+            msg = response.message('From: {}\n{}'.format(from_, message), to=self.number)
 
         if event.media_url:
             msg.media(event.media_url)

@@ -21,7 +21,7 @@ class Email(vbx.Device):
 
         if event.from_ in vbx.config.contacts:
             from_ = vbx.config.contacts[events.from_]
-        else
+        else:
             from_ = events.from_
 
         msg['Subject'] = 'SMS From {}'.format(from_)
