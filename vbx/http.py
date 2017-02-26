@@ -43,7 +43,7 @@ class AccountHandler(web.json.JSONHandler):
     def message_encode(self, msg):
         encoded = {'sid': msg.sid, 'body': msg.body, 'date': msg.date_created.isoformat().replace('+00:00', 'Z'), 'direction': msg.direction, 'from': msg.from_, 'to': msg.to, 'media_url': None, 'media_type': None}
 
-        if msg.num_media > 0:
+        if int(msg.num_media) > 0:
             media = msg.media.list(limit=1)[0]
             encoded.update({'media_url': media.uri, 'media_type': media.content_type})
 
