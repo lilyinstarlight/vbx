@@ -3,6 +3,7 @@ import smtplib
 from email.mime.text import MIMEText
 
 import vbx
+import vbx.config
 
 
 class Email(vbx.Device):
@@ -13,7 +14,12 @@ class Email(vbx.Device):
     def send(self, event, message, response):
         msg = MIMEText(message)
 
-        msg['Subject'] = 'SMS From {}'.format(event.from_)
+        if event.from_ in vbx.config.contacts:
+            from_ = vbx.config.contacts[events.from_]
+        else
+            from_ = events.from_
+
+        msg['Subject'] = 'SMS From {}'.format(from_)
         msg['From'] = self.from_
         msg['To'] = self.to
 
