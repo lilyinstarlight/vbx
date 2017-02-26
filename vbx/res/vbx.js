@@ -297,7 +297,7 @@ var open = function(number, message) {
 		div.appendChild(p);
 
 		// add media if necessary
-		if (messsage.media_url !== null) {
+		if (message.media_url !== null) {
 			var embed = document.createElement('embed');
 			embed.src = message.media_url;
 			embed.type = message.media_type;
