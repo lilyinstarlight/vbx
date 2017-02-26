@@ -305,6 +305,11 @@ var open = function(number, message) {
 			div.appendChild(embed);
 		}
 
+		div.addEventListener('load', function(ev) {
+			// scroll chat down
+			container.scrollTop = 2147483646;
+		});
+
 		// add message to chat window
 		container.appendChild(div);
 	}
@@ -331,9 +336,6 @@ var open = function(number, message) {
 				messages.forEach(function(message) {
 					write(container, number, message);
 				});
-
-				// scroll chat down
-				container.scrollTop = 2147483646;
 			});
 		});
 	}
@@ -347,9 +349,6 @@ var open = function(number, message) {
 		// load given message
 		if (message !== undefined)
 			write(container, number, message);
-
-		// scroll chat down
-		container.scrollTop = 2147483646;
 	}
 };
 
