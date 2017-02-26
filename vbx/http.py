@@ -45,7 +45,7 @@ class AccountHandler(web.json.JSONHandler):
 
         if msg.num_media > 0:
             media = msg.media.list(limit=1)[0]
-            encoded.update({'media_url': media.uri, 'media_type': media.content_type});
+            encoded.update({'media_url': media.uri, 'media_type': media.content_type})
 
         return encoded
 
