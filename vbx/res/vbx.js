@@ -66,16 +66,13 @@ var load = function() {
 		contact = response;
 
 		Object.keys(contact).forEach(function(key) {
-			var tr = document.createElement('tr');
-
-			var td_name = document.createElement('td');
-			var td_number = document.createElement('td');
-			var td_buttons = document.createElement('td');
+			var span_name = document.createElement('span');
+			var span_number = document.createElement('span');
 			var button_message = document.createElement('button');
 			var button_call = document.createElement('button');
 
-			td_name.innerText = contact[key];
-			td_number.innerText = key;
+			span_name.innerText = contact[key];
+			span_number.innerText = key;
 
 			button_message.innerText = 'Message';
 			button_call.innerText = 'Call';
@@ -87,12 +84,22 @@ var load = function() {
 				window.call(key);
 			});
 
-			td_buttons.appendChild(button_message);
-			td_buttons.appendChild(button_call);
+			var tr = document.createElement('tr');
+
+			var td_name = document.createElement('td');
+			var td_number = document.createElement('td');
+			var td_message = document.createElement('td');
+			var td_call = document.createElement('td');
+
+			td_name.appendChild(span_name);
+			td_number.appendChild(span_number);
+			td_message.appendChild(button_message);
+			td_call.appendChild(button_call);
 
 			tr.appendChild(td_name);
 			tr.appendChild(td_number);
-			tr.appendChild(td_buttons);
+			tr.appendChild(td_message);
+			tr.appendChild(td_call);
 
 			contacts.appendChild(tr);
 		});

@@ -119,23 +119,27 @@ main {
 	padding: 0em;
 }
 
-.contacts tr:nth-child(odd) {
+.contacts table td {
+	padding: 0em;
+}
+
+.contacts table tr:nth-child(odd) {
 	background: #555;
 }
 
-.contacts tr:nth-child(even) {
+.contacts table tr:nth-child(even) {
 	background: #333;
 }
 
-.contacts td {
+.contacts table td span {
 	padding: 1em 1em;
 }
 
-.contacts td:nth-child(2) {
+.contacts table td:nth-child(2) {
 	width: 100%;
 }
 
-.contacts button:hover {
+.contacts table td button:hover {
 	background: #444;
 }
 
