@@ -58,6 +58,7 @@ main {
 }
 
 .chat embed {
+	padding-top: 1em;
 	width: 20em;
 }
 
