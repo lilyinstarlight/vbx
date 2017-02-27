@@ -119,42 +119,9 @@ main {
 	display: block;
 }
 
-.contacts {
+.history, .contacts {
 	background: #555;
 	flex-grow: 1;
-}
-
-.contacts table {
-	border-collapse: collapse;
-}
-
-.contacts table, table td, table tr {
-	padding: 0em;
-}
-
-.contacts table tr:nth-child(odd) {
-	background: #555;
-}
-
-.contacts table tr:nth-child(even) {
-	background: #333;
-}
-
-.contacts table td span {
-	padding: 1em 1em;
-	white-space: nowrap;
-}
-
-.contacts table td:nth-child(2) {
-	width: 100%;
-}
-
-.contacts table td button:hover {
-	background: #444;
-}
-
-.contacts table td > button {
-	width: 8em;
 }
 
 .message {
@@ -285,6 +252,39 @@ button.close {
 
 input {
 	font-size: 1em;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table, table td, table tr {
+	padding: 0em;
+}
+
+table tr:nth-child(odd) {
+	background: #555;
+}
+
+table tr:nth-child(even) {
+	background: #333;
+}
+
+table td span {
+	padding: 1em 1em;
+	white-space: nowrap;
+}
+
+table td:nth-child(2) {
+	width: 100%;
+}
+
+table td button:hover {
+	background: #444;
+}
+
+table td > button {
+	width: 8em;
 }
 
 .left {
