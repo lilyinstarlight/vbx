@@ -53,7 +53,7 @@ var load = function() {
 	buttons = [document.getElementById('button_contacts'), document.getElementById('button_message'), document.getElementById('button_phone')];
 	main = document.getElementById('main');
 	conversations = [];
-	contacts = document.getElementById('contacts').children[0].children[0];
+	contacts = document.getElementById('contacts');
 	phone = document.getElementById('phone');
 	message = document.getElementById('message');
 	message_number = document.getElementById('message_number');
@@ -64,6 +64,8 @@ var load = function() {
 	// load contacts
 	xhr('get', '/contacts/', undefined, function(response) {
 		contact = response;
+
+		var tbody = contacts.children[0].children[0];
 
 		Object.keys(contact).forEach(function(key) {
 			var span_name = document.createElement('span');
@@ -101,7 +103,7 @@ var load = function() {
 			tr.appendChild(td_message);
 			tr.appendChild(td_call);
 
-			contacts.appendChild(tr);
+			tbody.appendChild(tr);
 		});
 	});
 
