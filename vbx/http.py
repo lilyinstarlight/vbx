@@ -40,7 +40,7 @@ class IndexPage(web.page.PageHandler):
 
 class AccountHandler(web.json.JSONHandler):
     def call_encode(self, call):
-        return {'sid': call.sid, 'annotation': call.annotation, 'date': call.date_created.isoformat().replace('+00:00', 'Z'), 'direction': call.direction, 'duration': call.duration, 'from': call.from_formatted, 'to': call.to, 'status': call.status}
+        return {'sid': call.sid, 'annotation': call.annotation, 'date': call.date_created.isoformat().replace('+00:00', 'Z'), 'direction': call.direction, 'duration': call.duration, 'from': call.from_, 'to': call.to, 'status': call.status}
 
     def message_encode(self, msg):
         encoded = {'sid': msg.sid, 'body': msg.body, 'date': msg.date_created.isoformat().replace('+00:00', 'Z'), 'direction': msg.direction, 'from': msg.from_, 'to': msg.to, 'media_url': None, 'media_type': None}
