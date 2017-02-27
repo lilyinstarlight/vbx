@@ -270,7 +270,7 @@ table tr:nth-child(even) {
 	background: #333;
 }
 
-table td span {
+table td span, table td time {
 	padding: 1em 1em;
 	white-space: nowrap;
 }

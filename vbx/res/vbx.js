@@ -81,7 +81,7 @@ var load = function() {
 
 	// load history
 	var recordUpdate = function() {
-		var tbody = contacts.children[0].children[0];
+		var tbody = record.children[0].children[0];
 
 		var write = function(tbody, data) {
 			if (data.direction === 'inbound')
@@ -93,18 +93,21 @@ var load = function() {
 
 			var span_other = document.createElement('span');
 			var span_data = document.createElement('span');
+			var time = document.createElement('time');
 			var button_message = document.createElement('button');
 			var button_call = document.createElement('button');
 
 			span_other.innerText = other;
 
 			if ('status' in data) {
-				var message = 'Call:';
+				var message = '';
 
 				if (data.direction === 'inbound')
-					message += ' Incoming';
+					message += 'Incoming';
 				else
-					message += ' Outgoing';
+					message += 'Outgoing';
+
+				mesage += ' Call:';
 
 				if (data.status === 'queued')
 					message += ' Queued';
@@ -115,7 +118,7 @@ var load = function() {
 				else if (data.status === 'canceled')
 					message += ' Canceled';
 				else if (data.status === 'completed')
-					message += ' Completed ' + data.duration + ' seconds';
+					message += ' Completed (' + data.duration + ' seconds)';
 				else if (data.status === 'failed')
 					message += ' Failed';
 				else if (data.status === 'busy')
@@ -125,17 +128,17 @@ var load = function() {
 				else
 					message += ' Unknown';
 
-				message += ' ' + window.mktime(new Date(data.date));
-
 				span_data.innerText = message;
 			}
 			else if ('body' in data) {
-				var message = 'Message:';
+				var message = '';
 
 				if (data.direction === 'inbound')
-					message += ' Incoming';
+					message += 'Incoming';
 				else
-					message += ' Outgoing';
+					message += 'Outgoing';
+
+				message += ' Message:';
 
 				message += ' ' + data.body;
 
@@ -146,6 +149,9 @@ var load = function() {
 			else {
 				span_data.innerText = data;
 			}
+
+
+			time.innerText = window.mktime(new Date(data.date));
 
 			button_message.innerText = 'Message';
 			button_call.innerText = 'Call';
@@ -178,23 +184,24 @@ var load = function() {
 		};
 
 		// load call history
-		xhr('get', '/calls/?direction=inbound', undefined, function(calls) {
-			xhr('get', '/calls/?direction=outbound-api', undefined, function(callsInner) {
-				xhr('get', '/msgs/?direction=inbound', undefined, function(msgs) {
-					xhr('get', '/msgs/?direction=output-api', undefined, function(msgsInner) {
-						// get all history elements
-						var entries = calls.concat(callsInner).concat(msgs).concat(msgsInner);
+		xhr('get', '/calls/', undefined, function(calls) {
+			xhr('get', '/msgs/', undefined, function(msgs) {
+				// get all history elements
+				var entries = calls.concat(callsInner).concat(msgs).concat(msgsInner);
 
-						// sort by date
-						entries.sort(function(left, right) {
-							return new Date(left.date) - new Date(right.date);
-						});
+				// filter out extra entries
+				entries.filter(function(entry) {
+					return entry.direction === 'inbound' || entry.direction === 'outbound-api';
+				});
 
-						// generate elements
-						entries.forEach(function(data) {
-							write(tbody, data);
-						});
-					});
+				// sort by date
+				entries.sort(function(left, right) {
+					return new Date(left.date) - new Date(right.date);
+				});
+
+				// generate elements
+				entries.forEach(function(data) {
+					write(tbody, data);
 				});
 			});
 		});
@@ -664,6 +671,9 @@ var select = function(id) {
 
 	if (id !== 'phone' && id !== 'message')
 		last = id;
+
+	if (id === 'history')
+		record.focus();
 };
 
 window.addEventListener('load', load);
