@@ -116,9 +116,11 @@ main {
 }
 
 .contacts table {
-	padding: 0em;
-	border: none;
 	border-collapse: collapse;
+}
+
+.contacts table, table td, table tr {
+	padding: 0em;
 }
 
 .contacts table tr:nth-child(odd) {
