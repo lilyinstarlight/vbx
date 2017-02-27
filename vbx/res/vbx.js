@@ -302,16 +302,19 @@ var open = function(number, message) {
 			embed.src = message.media_url;
 			embed.type = message.media_type;
 
+			embed.addEventListener('load', function(ev) {
+				// scroll chat down
+				container.scrollTop = 2147483646;
+			});
+
 			div.appendChild(embed);
 		}
 
-		div.addEventListener('load', function(ev) {
-			// scroll chat down
-			container.scrollTop = 2147483646;
-		});
-
 		// add message to chat window
 		container.appendChild(div);
+
+		// scroll chat down
+		container.scrollTop = 2147483646;
 	}
 
 	if (document.getElementById(number) === null) {
