@@ -206,6 +206,9 @@ var load = function() {
 				entries.forEach(function(data) {
 					write(tbody, data);
 				});
+
+				// scroll history down
+				record.scrollTop = 2147483646;
 			});
 		});
 	};

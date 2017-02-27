@@ -122,6 +122,8 @@ main {
 .history, .contacts {
 	background: #555;
 	flex-grow: 1;
+	height: calc(100vh - 3em);
+	overflow-y: scroll;
 }
 
 .message {
