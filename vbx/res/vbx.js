@@ -167,16 +167,19 @@ var load = function() {
 
 			var td_other = document.createElement('td');
 			var td_data = document.createElement('td');
+			var td_time = document.createElement('td');
 			var td_message = document.createElement('td');
 			var td_call = document.createElement('td');
 
 			td_other.appendChild(span_other);
 			td_data.appendChild(span_data);
+			td_time.appendChild(time);
 			td_message.appendChild(button_message);
 			td_call.appendChild(button_call);
 
 			tr.appendChild(td_other);
 			tr.appendChild(td_data);
+			tr.appendChild(td_time);
 			tr.appendChild(td_message);
 			tr.appendChild(td_call);
 
