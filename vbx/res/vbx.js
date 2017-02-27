@@ -2,7 +2,7 @@ var nav = null;
 var buttons = [];
 var main = null;
 var conversations = [];
-var history = null;
+var record = null;
 var contacts = null;
 var phone = null;
 var message = null;
@@ -70,7 +70,7 @@ var load = function() {
 	buttons = [document.getElementById('button_contacts'), document.getElementById('button_message'), document.getElementById('button_phone')];
 	main = document.getElementById('main');
 	conversations = [];
-	history = document.getElementById('history');
+	record = document.getElementById('history');
 	contacts = document.getElementById('contacts');
 	phone = document.getElementById('phone');
 	message = document.getElementById('message');
@@ -80,7 +80,7 @@ var load = function() {
 	contact = {};
 
 	// load history
-	var historyUpdate = function() {
+	var recordUpdate = function() {
 		var tbody = contacts.children[0].children[0];
 
 		var write = function(tbody, data) {
@@ -201,7 +201,7 @@ var load = function() {
 	};
 
 	// setup history loading event
-	history.addEventListener('focus', function(ev) { historyUpdate(); });
+	record.addEventListener('focus', function(ev) { recordUpdate(); });
 
 	// load contacts
 	xhr('get', '/contacts/', undefined, function(response) {
@@ -638,7 +638,7 @@ var select = function(id) {
 		});
 
 		// close phone and contacts
-		history.style.display = 'none';
+		record.style.display = 'none';
 		contacts.style.display = 'none';
 		message.style.display = 'none';
 		phone.style.display = 'none';
