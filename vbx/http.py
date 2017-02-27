@@ -1,5 +1,7 @@
 import datetime
+import urllib.parse
 
+import twilio.values
 import twilio.rest
 import twilio.jwt.client
 
@@ -68,7 +70,14 @@ class BrowserHandler(AccountHandler):
 class OutgoingHandler(AccountHandler):
     def do_post(self):
         try:
-            client.messages.create(self.request.body['to'], body=self.request.body['body'], from_=vbx.config.number)
+            body = self.request.body['body']
+            media_url = twilio.values.unset
+
+            body_url = urllib.parse.urlparse(body.split(' ', 1)[0])
+            if body_url.scheme and body_url.netloc:
+                media_url = body_url.geturl()
+
+            client.messages.create(self.request.body['to'], body=body, from_=vbx.config.number, media_url=media_url)
 
             return 204, ''
         except KeyError:
