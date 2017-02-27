@@ -117,10 +117,8 @@ main {
 
 .contacts table {
 	padding: 0em;
-}
-
-.contacts table td {
-	padding: 0em;
+	border: none;
+	border-collapse: collapse;
 }
 
 .contacts table tr:nth-child(odd) {
@@ -133,6 +131,7 @@ main {
 
 .contacts table td span {
 	padding: 1em 1em;
+	white-space: nowrap;
 }
 
 .contacts table td:nth-child(2) {
