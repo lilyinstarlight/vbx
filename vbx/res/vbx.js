@@ -107,7 +107,7 @@ var load = function() {
 				else
 					message += 'Outgoing';
 
-				mesage += ' Call:';
+				message += ' Call:';
 
 				if (data.status === 'queued')
 					message += ' Queued';
