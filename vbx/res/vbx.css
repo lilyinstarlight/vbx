@@ -7,6 +7,8 @@ body {
 	flex-direction: column;
 	overflow: hidden;
 
+	font-family: sans-serif;
+
 	display: none;
 }
 
@@ -18,6 +20,10 @@ header::after {
 	content: "";
 	display: block;
 	clear: both;
+}
+
+header > button {
+	width: 8em;
 }
 
 header > div {
@@ -143,6 +149,10 @@ main {
 
 .contacts table td button:hover {
 	background: #444;
+}
+
+.contacts table td > button {
+	width: 8em;
 }
 
 .message {

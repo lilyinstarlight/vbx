@@ -77,7 +77,7 @@ var load = function() {
 			span_number.innerText = key;
 
 			button_message.innerText = 'Message';
-			button_call.innerText = 'Phone';
+			button_call.innerText = 'Call';
 
 			button_message.addEventListener('click', function(ev) {
 				window.open(key);
