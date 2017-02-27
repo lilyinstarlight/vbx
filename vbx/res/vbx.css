@@ -115,39 +115,28 @@ main {
 	flex-grow: 1;
 }
 
-.contacts ul {
+.contacts table {
 	padding: 0em;
 }
 
-.contacts li {
-	list-style-type: none;
-}
-
-.contacts li:nth-child(odd) {
+.contacts tr:nth-child(odd) {
 	background: #555;
 }
 
-.contacts li:nth-child(even) {
+.contacts tr:nth-child(even) {
 	background: #333;
 }
 
-.contacts span {
-	float: left;
+.contacts td {
 	padding: 1em 1em;
 }
 
-.contacts button {
-	float: right;
+.contacts td:nth-child(2) {
+	width: 100%;
 }
 
 .contacts button:hover {
 	background: #444;
-}
-
-.contacts li::after {
-	content: "";
-	display: block;
-	clear: both;
 }
 
 .message {

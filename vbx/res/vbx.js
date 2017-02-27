@@ -53,7 +53,7 @@ var load = function() {
 	buttons = [document.getElementById('button_contacts'), document.getElementById('button_message'), document.getElementById('button_phone')];
 	main = document.getElementById('main');
 	conversations = [];
-	contacts = document.getElementById('contacts');
+	contacts = document.getElementById('contacts').children[0].children[0];
 	phone = document.getElementById('phone');
 	message = document.getElementById('message');
 	message_number = document.getElementById('message_number');
@@ -66,32 +66,35 @@ var load = function() {
 		contact = response;
 
 		Object.keys(contact).forEach(function(key) {
-			var li = document.createElement('li');
+			var tr = document.createElement('tr');
 
-			var span_name = document.createElement('span');
-			var span_number = document.createElement('span');
-			var button_call = document.createElement('button');
+			var td_name = document.createElement('td');
+			var td_number = document.createElement('td');
+			var td_buttons = document.createElement('td');
 			var button_message = document.createElement('button');
+			var button_call = document.createElement('button');
 
-			span_name.innerText = contact[key];
-			span_number.innerText = key;
+			td_name.innerText = contact[key];
+			td_number.innerText = key;
 
-			button_call.innerText = 'Call';
 			button_message.innerText = 'Message';
+			button_call.innerText = 'Call';
 
-			button_call.addEventListener('click', function(ev) {
-				window.call(key);
-			});
 			button_message.addEventListener('click', function(ev) {
 				window.open(key);
 			});
+			button_call.addEventListener('click', function(ev) {
+				window.call(key);
+			});
 
-			li.appendChild(span_name);
-			li.appendChild(span_number);
-			li.appendChild(button_call);
-			li.appendChild(button_message);
+			td_buttons.appendChild(button_message);
+			td_buttons.appendChild(button_call);
 
-			contacts.appendChild(li);
+			tr.appendChild(td_name);
+			tr.appendChild(td_number);
+			tr.appendChild(td_buttons);
+
+			contacts.appendChild(tr);
 		});
 	});
 
