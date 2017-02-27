@@ -187,7 +187,7 @@ var load = function() {
 		xhr('get', '/calls/', undefined, function(calls) {
 			xhr('get', '/msgs/', undefined, function(msgs) {
 				// get all history elements
-				var entries = calls.concat(callsInner).concat(msgs).concat(msgsInner);
+				var entries = calls.concat(msgs);
 
 				// filter out extra entries
 				entries.filter(function(entry) {
