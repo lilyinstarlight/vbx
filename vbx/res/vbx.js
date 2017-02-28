@@ -312,7 +312,7 @@ var load = function() {
 						var entries = calls.concat(msgs);
 
 						// filter out extra entries
-						entries.filter(function(entry) {
+						entries = entries.filter(function(entry) {
 							return (entry.to !== 'client:vbx' && entry.from !== 'client:vbx') && (entry.direction === 'inbound' || entry.direction === 'outbound-api');
 						});
 
