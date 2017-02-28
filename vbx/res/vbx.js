@@ -195,7 +195,7 @@ var load = function() {
 
 				// filter out extra entries
 				entries.filter(function(entry) {
-					return entry.direction === 'inbound' || entry.direction === 'outbound-api';
+					return (entry.to !== 'client:vbx' && entry.from !== 'client:vbx') && (entry.direction === 'inbound' || entry.direction === 'outbound-api');
 				});
 
 				// sort by date
