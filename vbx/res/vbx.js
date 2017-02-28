@@ -388,6 +388,19 @@ var load = function() {
 
 	// show body
 	document.body.style.display = 'flex';
+
+	// fix scrollbar width
+	var test = document.createElement('div');
+	test.innerHTML = '&nbsp;';
+	test.style.overflow = 'scroll';
+
+	document.body.appendChild(test);
+	var scroll = test.offsetWidth - test.clientWidth;
+	document.body.removeChild(test);
+
+	var scrollfix = document.createElement('style');
+	scrollfix.innerHTML = 'table td:last-child > button { width: calc(8em - ' + scroll + 'px); }';
+	document.head.appendChild(scrollfix);
 };
 
 var open = function(number, message) {
