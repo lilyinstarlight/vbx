@@ -399,7 +399,7 @@ var load = function() {
 	document.body.removeChild(test);
 
 	var scrollfix = document.createElement('style');
-	scrollfix.innerHTML = 'table td:last-child > button { width: calc(8em - ' + scroll + 'px); }';
+	scrollfix.innerHTML = '.history table td:last-child > button, .contacts table td:last-child > button { width: calc(8em - ' + scroll + 'px); }';
 	document.head.appendChild(scrollfix);
 };
 
