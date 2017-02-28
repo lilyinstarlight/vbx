@@ -19,6 +19,7 @@ var token = null;
 var connection = null;
 var incoming = null;
 
+var recordTime = new Date();
 var messageTime = new Date();
 
 var xhr = function(method, resource, data, callback) {
@@ -274,6 +275,8 @@ var load = function() {
 
 					var tr = document.createElement('tr');
 
+					tr.id = 'history_' + data.sid;
+
 					var td_other = document.createElement('td');
 					var td_data = document.createElement('td');
 					var td_time = document.createElement('td');
@@ -295,9 +298,13 @@ var load = function() {
 					tbody.appendChild(tr);
 				};
 
+				var currentTime = recordTime;
+				var current = recordTime.toISOString();
+				var nextTime = new Date();
+
 				// load call history
-				xhr('get', '/calls/', undefined, function(calls) {
-					xhr('get', '/msgs/', undefined, function(msgs) {
+				xhr('get', '/calls/?start_time_after=' + current, undefined, function(calls) {
+					xhr('get', '/msgs/?date_sent_after=' + current, undefined, function(msgs) {
 						// get all history elements
 						var entries = calls.concat(msgs);
 
@@ -313,13 +320,16 @@ var load = function() {
 
 						// generate elements
 						entries.forEach(function(data) {
-							write(tbody, data);
+							if (document.getElementById('history_' + data.sid) !== null)
+								write(tbody, data);
 						});
 
 						// scroll history down
 						record.scrollTop = 2147483646;
 					});
 				});
+
+				recordTime = nextTime;
 			}
 
 			setTimeout(recordUpdate, 2000);
