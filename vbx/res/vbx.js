@@ -188,140 +188,139 @@ var load = function() {
 		// setup history callbacks
 		var recordUpdate = function() {
 			// ignore costly history update if not focused
-			if (!record.hasFocus())
-				return;
+			if (record.style.display === '') {
+				var tbody = record.children[0].children[0];
 
-			var tbody = record.children[0].children[0];
-
-			var write = function(tbody, data) {
-				if (data.direction === 'inbound')
-					var number = data.from;
-				else
-					var number = data.to;
-
-				var other = number in contact ? contact[number] : number;
-
-				var span_other = document.createElement('span');
-				var span_data = document.createElement('span');
-				var time = document.createElement('time');
-				var button_message = document.createElement('button');
-				var button_call = document.createElement('button');
-
-				span_other.innerText = other;
-
-				if ('status' in data) {
-					var message = '';
-
+				var write = function(tbody, data) {
 					if (data.direction === 'inbound')
-						message += 'Incoming';
+						var number = data.from;
 					else
-						message += 'Outgoing';
+						var number = data.to;
 
-					message += ' Call:';
+					var other = number in contact ? contact[number] : number;
 
-					if (data.status === 'queued')
-						message += ' Queued';
-					else if (data.status === 'ringing')
-						message += ' Ringing';
-					else if (data.status === 'in-progress')
-						message += ' In Progress';
-					else if (data.status === 'canceled')
-						message += ' Canceled';
-					else if (data.status === 'completed')
-						message += ' Completed (' + data.duration + ' seconds)';
-					else if (data.status === 'failed')
-						message += ' Failed';
-					else if (data.status === 'busy')
-						message += ' Busy';
-					else if (data.status === 'no-answer')
-						message += ' No Answer';
-					else
-						message += ' Unknown';
+					var span_other = document.createElement('span');
+					var span_data = document.createElement('span');
+					var time = document.createElement('time');
+					var button_message = document.createElement('button');
+					var button_call = document.createElement('button');
 
-					span_data.innerText = message;
-				}
-				else if ('body' in data) {
-					var message = '';
+					span_other.innerText = other;
 
-					if (data.direction === 'inbound')
-						message += 'Incoming';
-					else
-						message += 'Outgoing';
+					if ('status' in data) {
+						var message = '';
 
-					message += ' Message:';
+						if (data.direction === 'inbound')
+							message += 'Incoming';
+						else
+							message += 'Outgoing';
 
-					message += ' ' + data.body;
+						message += ' Call:';
 
-					if (data.media_url !== null)
-						message += ' [media]';
+						if (data.status === 'queued')
+							message += ' Queued';
+						else if (data.status === 'ringing')
+							message += ' Ringing';
+						else if (data.status === 'in-progress')
+							message += ' In Progress';
+						else if (data.status === 'canceled')
+							message += ' Canceled';
+						else if (data.status === 'completed')
+							message += ' Completed (' + data.duration + ' seconds)';
+						else if (data.status === 'failed')
+							message += ' Failed';
+						else if (data.status === 'busy')
+							message += ' Busy';
+						else if (data.status === 'no-answer')
+							message += ' No Answer';
+						else
+							message += ' Unknown';
 
-					span_data.innerText = message;
-				}
-				else {
-					span_data.innerText = data;
-				}
+						span_data.innerText = message;
+					}
+					else if ('body' in data) {
+						var message = '';
+
+						if (data.direction === 'inbound')
+							message += 'Incoming';
+						else
+							message += 'Outgoing';
+
+						message += ' Message:';
+
+						message += ' ' + data.body;
+
+						if (data.media_url !== null)
+							message += ' [media]';
+
+						span_data.innerText = message;
+					}
+					else {
+						span_data.innerText = data;
+					}
 
 
-				time.innerText = window.mktime(new Date(data.date));
+					time.innerText = window.mktime(new Date(data.date));
 
-				button_message.innerText = 'Message';
-				button_call.innerText = 'Call';
+					button_message.innerText = 'Message';
+					button_call.innerText = 'Call';
 
-				button_message.addEventListener('click', function(ev) {
-					window.open(number);
-				});
-				button_call.addEventListener('click', function(ev) {
-					window.call(number);
-				});
-
-				var tr = document.createElement('tr');
-
-				var td_other = document.createElement('td');
-				var td_data = document.createElement('td');
-				var td_time = document.createElement('td');
-				var td_message = document.createElement('td');
-				var td_call = document.createElement('td');
-
-				td_other.appendChild(span_other);
-				td_data.appendChild(span_data);
-				td_time.appendChild(time);
-				td_message.appendChild(button_message);
-				td_call.appendChild(button_call);
-
-				tr.appendChild(td_other);
-				tr.appendChild(td_data);
-				tr.appendChild(td_time);
-				tr.appendChild(td_message);
-				tr.appendChild(td_call);
-
-				tbody.appendChild(tr);
-			};
-
-			// load call history
-			xhr('get', '/calls/', undefined, function(calls) {
-				xhr('get', '/msgs/', undefined, function(msgs) {
-					// get all history elements
-					var entries = calls.concat(msgs);
-
-					// filter out extra entries
-					entries.filter(function(entry) {
-						return (entry.to !== 'client:vbx' && entry.from !== 'client:vbx') && (entry.direction === 'inbound' || entry.direction === 'outbound-api');
+					button_message.addEventListener('click', function(ev) {
+						window.open(number);
+					});
+					button_call.addEventListener('click', function(ev) {
+						window.call(number);
 					});
 
-					// sort by date
-					entries.sort(function(left, right) {
-						return new Date(left.date) - new Date(right.date);
-					});
+					var tr = document.createElement('tr');
 
-					// generate elements
-					entries.forEach(function(data) {
-						write(tbody, data);
-					});
+					var td_other = document.createElement('td');
+					var td_data = document.createElement('td');
+					var td_time = document.createElement('td');
+					var td_message = document.createElement('td');
+					var td_call = document.createElement('td');
 
-					// scroll history down
-					record.scrollTop = 2147483646;
+					td_other.appendChild(span_other);
+					td_data.appendChild(span_data);
+					td_time.appendChild(time);
+					td_message.appendChild(button_message);
+					td_call.appendChild(button_call);
+
+					tr.appendChild(td_other);
+					tr.appendChild(td_data);
+					tr.appendChild(td_time);
+					tr.appendChild(td_message);
+					tr.appendChild(td_call);
+
+					tbody.appendChild(tr);
+				};
+
+				// load call history
+				xhr('get', '/calls/', undefined, function(calls) {
+					xhr('get', '/msgs/', undefined, function(msgs) {
+						// get all history elements
+						var entries = calls.concat(msgs);
+
+						// filter out extra entries
+						entries.filter(function(entry) {
+							return (entry.to !== 'client:vbx' && entry.from !== 'client:vbx') && (entry.direction === 'inbound' || entry.direction === 'outbound-api');
+						});
+
+						// sort by date
+						entries.sort(function(left, right) {
+							return new Date(left.date) - new Date(right.date);
+						});
+
+						// generate elements
+						entries.forEach(function(data) {
+							write(tbody, data);
+						});
+
+						// scroll history down
+						record.scrollTop = 2147483646;
+					});
 				});
-			});
+			}
 
 			setTimeout(recordUpdate, 2000);
 		};
