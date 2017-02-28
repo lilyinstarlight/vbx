@@ -19,7 +19,7 @@ var token = null;
 var connection = null;
 var incoming = null;
 
-var recordTime = new Date();
+var recordTime = new Date(0);
 var messageTime = new Date();
 
 var xhr = function(method, resource, data, callback) {
@@ -190,9 +190,9 @@ var load = function() {
 		var recordUpdate = function() {
 			// ignore costly history update if not focused
 			if (record.style.display === '') {
-				var tbody = record.children[0].children[0];
+				var write = function(container, data) {
+					var tbody = record.children[0].children[0];
 
-				var write = function(tbody, data) {
 					if (data.direction === 'inbound')
 						var number = data.from;
 					else
@@ -296,6 +296,9 @@ var load = function() {
 					tr.appendChild(td_call);
 
 					tbody.appendChild(tr);
+
+					// scroll history down
+					container.scrollTop = 2147483646;
 				};
 
 				var currentTime = recordTime;
@@ -320,12 +323,9 @@ var load = function() {
 
 						// generate elements
 						entries.forEach(function(data) {
-							if (document.getElementById('history_' + data.sid) !== null)
-								write(tbody, data);
+							if (document.getElementById('history_' + data.sid) === null)
+								write(record, data);
 						});
-
-						// scroll history down
-						record.scrollTop = 2147483646;
 					});
 				});
 
