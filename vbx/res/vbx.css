@@ -279,6 +279,7 @@ table td span, table td time {
 
 table td:nth-child(2) {
 	width: 100%;
+	white-space: initial;
 }
 
 table td button:hover {
