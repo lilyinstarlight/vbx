@@ -142,7 +142,8 @@ var load = function() {
 
 				message += ' ' + data.body;
 
-				message += ' ' + window.mktime(new Date(data.date));
+				if (data.media_url !== null)
+					message += ' [media]';
 
 				span_data.innerText = message;
 			}
