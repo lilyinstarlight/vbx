@@ -190,23 +190,8 @@ var load = function() {
 		var recordUpdate = function() {
 			// ignore costly history update if not focused
 			if (record.style.display === '') {
-				var write = function(container, data) {
-					var tbody = record.children[0].children[0];
-
-					if (data.direction === 'inbound')
-						var number = data.from;
-					else
-						var number = data.to;
-
-					var other = number in contact ? contact[number] : number;
-
-					var span_other = document.createElement('span');
-					var span_data = document.createElement('span');
-					var time = document.createElement('time');
-					var button_message = document.createElement('button');
-					var button_call = document.createElement('button');
-
-					span_other.innerText = other;
+				var update = function(data) {
+					var span_data = document.getElementById('history_ ' + data.sid).children[1].children[0];
 
 					if ('status' in data) {
 						var message = '';
@@ -259,7 +244,25 @@ var load = function() {
 					else {
 						span_data.innerText = data;
 					}
+				};
 
+				var write = function(container, data) {
+					var tbody = record.children[0].children[0];
+
+					if (data.direction === 'inbound')
+						var number = data.from;
+					else
+						var number = data.to;
+
+					var other = number in contact ? contact[number] : number;
+
+					var span_other = document.createElement('span');
+					var span_data = document.createElement('span');
+					var time = document.createElement('time');
+					var button_message = document.createElement('button');
+					var button_call = document.createElement('button');
+
+					span_other.innerText = other;
 
 					time.innerText = window.mktime(new Date(data.date));
 
@@ -297,6 +300,8 @@ var load = function() {
 
 					tbody.appendChild(tr);
 
+					update(data);
+
 					// scroll history down
 					container.scrollTop = 2147483646;
 				};
@@ -325,6 +330,8 @@ var load = function() {
 						entries.forEach(function(data) {
 							if (document.getElementById('history_' + data.sid) === null)
 								write(record, data);
+							else
+								update(data);
 						});
 					});
 				});
