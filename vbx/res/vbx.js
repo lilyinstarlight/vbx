@@ -625,13 +625,14 @@ var click = function(key) {
 			incoming.accept();
 
 			connection = incoming;
+
+			state = 'connected';
+			status.innerText = 'Connected.';
 		}
 		else if (key === 'hangup') {
 			incoming.reject();
+			hangup();
 		}
-
-		state = 'connected';
-		status.innerText = 'Connected.';
 	}
 };
 
