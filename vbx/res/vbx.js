@@ -191,7 +191,7 @@ var load = function() {
 			// ignore costly history update if not focused
 			if (record.style.display === '') {
 				var update = function(data) {
-					var span_data = document.getElementById('history_ ' + data.sid).children[1].children[0];
+					var span = document.getElementById('history_' + data.sid).children[1].children[0];
 
 					if ('status' in data) {
 						var message = '';
@@ -222,7 +222,7 @@ var load = function() {
 						else
 							message += ' Unknown';
 
-						span_data.innerText = message;
+						span.innerText = message;
 					}
 					else if ('body' in data) {
 						var message = '';
@@ -239,10 +239,10 @@ var load = function() {
 						if (data.media_url !== null)
 							message += ' [media]';
 
-						span_data.innerText = message;
+						span.innerText = message;
 					}
 					else {
-						span_data.innerText = data;
+						span.innerText = data;
 					}
 				};
 
@@ -312,26 +312,28 @@ var load = function() {
 
 				// load call history
 				xhr('get', '/calls/?start_time_after=' + current, undefined, function(calls) {
-					xhr('get', '/msgs/?date_sent_after=' + current, undefined, function(msgs) {
-						// get all history elements
-						var entries = calls.concat(msgs);
+					xhr('get', '/calls/?start_time_before=' + current + '&end_time_after=' + current, undefined, function(callsInner) {
+						xhr('get', '/msgs/?date_sent_after=' + current, undefined, function(msgs) {
+							// get all history elements
+							var entries = calls.concat(callsInner).concat(msgs);
 
-						// filter out extra entries
-						entries = entries.filter(function(entry) {
-							return (entry.to !== 'client:vbx' && entry.from !== 'client:vbx') && (entry.direction === 'inbound' || entry.direction === 'outbound-api');
-						});
+							// filter out extra entries
+							entries = entries.filter(function(entry) {
+								return (entry.to !== 'client:vbx' && entry.from !== 'client:vbx') && (entry.direction === 'inbound' || entry.direction === 'outbound-api');
+							});
 
-						// sort by date
-						entries.sort(function(left, right) {
-							return new Date(left.date) - new Date(right.date);
-						});
+							// sort by date
+							entries.sort(function(left, right) {
+								return new Date(left.date) - new Date(right.date);
+							});
 
-						// generate elements
-						entries.forEach(function(data) {
-							if (document.getElementById('history_' + data.sid) === null)
-								write(record, data);
-							else
-								update(data);
+							// generate elements
+							entries.forEach(function(data) {
+								if (document.getElementById('history_' + data.sid) === null)
+									write(record, data);
+								else
+									update(data);
+							});
 						});
 					});
 				});
