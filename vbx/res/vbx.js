@@ -144,7 +144,7 @@ var load = function() {
 
 		Twilio.Device.disconnect(function(conn) {
 			state = 'idle';
-			statusline.innerText = 'Dial a Number';
+			statusline.innerText = 'Dial a Number...';
 		});
 
 		Twilio.Device.incoming(function(conn) {
@@ -169,7 +169,7 @@ var load = function() {
 
 		Twilio.Device.cancel(function(conn) {
 			state = 'idle';
-			statusline.innerText = 'Dial a Number';
+			statusline.innerText = 'Dial a Number...';
 
 			// close phone
 			select(last);
@@ -631,7 +631,10 @@ var click = function(key) {
 		}
 		else if (key === 'hangup') {
 			incoming.reject();
-			hangup();
+
+			statusline.innerText = 'Dial a Number...';
+
+			state = 'idle';
 		}
 	}
 };
