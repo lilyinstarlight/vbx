@@ -613,7 +613,6 @@ var click = function(key) {
 		}
 		else if (key === 'hangup') {
 			statusline.innerText = 'Dial a Number...';
-
 			state = 'idle';
 		}
 		else {
@@ -632,8 +631,8 @@ var click = function(key) {
 		else if (key === 'hangup') {
 			incoming.reject();
 
+			select(last);
 			statusline.innerText = 'Dial a Number...';
-
 			state = 'idle';
 		}
 	}
