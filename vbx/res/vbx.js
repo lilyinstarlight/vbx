@@ -13,7 +13,7 @@ var statusline = null;
 
 var contact = {};
 
-var number = null;
+var my_number = null;
 
 var token = null;
 var connection = null;
@@ -129,7 +129,7 @@ var load = function() {
 	// setup callbacks
 	xhr('get', '/browser', undefined, function(data) {
 		// get number
-		number = data.number;
+		my_number = data.number;
 
 		// get token
 		token = data.token;
@@ -311,28 +311,34 @@ var load = function() {
 				var nextTime = new Date();
 
 				// load call history
-				xhr('get', '/calls/?start_time_after=' + current, undefined, function(calls) {
-					xhr('get', '/calls/?start_time_before=' + current + '&end_time_after=' + current, undefined, function(callsInner) {
-						xhr('get', '/msgs/?date_sent_after=' + current, undefined, function(msgs) {
-							// get all history elements
-							var entries = calls.concat(callsInner).concat(msgs);
+				xhr('get', '/calls/?start_time_after=' + current + '&to=' + my_number, undefined, function(progress) {
+					xhr('get', '/calls/?start_time_after=' + current + '&from=' + my_number, undefined, function(progressInner) {
+						xhr('get', '/calls/?start_time_before=' + current + '&end_time_after=' + current + '&to=' + my_number, undefined, function(calls) {
+							xhr('get', '/calls/?start_time_before=' + current + '&end_time_after=' + current + '&from=' + my_number, undefined, function(callsInner) {
+								xhr('get', '/msgs/?date_sent_after=' + current + '&to=' + my_number, undefined, function(msgs) {
+									xhr('get', '/msgs/?date_sent_after=' + current + '&from=' + my_number, undefined, function(msgsInner) {
+										// get all history elements
+										var entries = progress.concat(progressInner).concat(calls).concat(callsInner).concat(msgs).concat(msgsInner);
 
-							// filter out extra entries
-							entries = entries.filter(function(entry) {
-								return (entry.to !== 'client:vbx' && entry.from !== 'client:vbx') && (entry.direction === 'inbound' || entry.direction === 'outbound-api');
-							});
+										// filter out extra entries
+										entries = entries.filter(function(entry) {
+											return (entry.to !== 'client:vbx' && entry.from !== 'client:vbx') && (entry.direction === 'inbound' || entry.direction === 'outbound-api');
+										});
 
-							// sort by date
-							entries.sort(function(left, right) {
-								return new Date(left.date) - new Date(right.date);
-							});
+										// sort by date
+										entries.sort(function(left, right) {
+											return new Date(left.date) - new Date(right.date);
+										});
 
-							// generate elements
-							entries.forEach(function(data) {
-								if (document.getElementById('history_' + data.sid) === null)
-									write(record, data);
-								else
-									update(data);
+										// generate elements
+										entries.forEach(function(data) {
+											if (document.getElementById('history_' + data.sid) === null)
+												write(record, data);
+											else
+												update(data);
+										});
+									});
+								});
 							});
 						});
 					});
@@ -353,7 +359,7 @@ var load = function() {
 			var current = messageTime.toISOString();
 			var nextTime = new Date();
 
-			xhr('get', '/msgs/?date_sent_after=' + current + '&to=' + number, undefined, function(data) {
+			xhr('get', '/msgs/?date_sent_after=' + current + '&to=' + my_number, undefined, function(data) {
 				data.forEach(function(message) {
 					// prevent double writes
 					if (document.getElementById(message.sid) === null) {
@@ -365,7 +371,7 @@ var load = function() {
 				});
 			});
 
-			xhr('get', '/msgs/?date_sent_after=' + current + '&from=' + number, undefined, function(data) {
+			xhr('get', '/msgs/?date_sent_after=' + current + '&from=' + my_number, undefined, function(data) {
 				data.forEach(function(message) {
 					// prevent double writes
 					if (document.getElementById(message.sid) === null)
@@ -472,7 +478,7 @@ var open = function(number, message) {
 		div.id = message.sid;
 
 		// set class based on whether this was sent or receieved
-		if (message.from === number)
+		if (message.from === my_number)
 			div.classList.add('me');
 		else
 			div.classList.add('you');
@@ -518,8 +524,8 @@ var open = function(number, message) {
 		select(number);
 
 		// load chat
-		xhr('get', '/msgs/?to=' + number, undefined, function(data) {
-			xhr('get', '/msgs/?from=' + number, undefined, function(dataInner) {
+		xhr('get', '/msgs/?to=' + number + '&from=' + my_number, undefined, function(data) {
+			xhr('get', '/msgs/?from=' + number + '&to=' + my_number, undefined, function(dataInner) {
 				// get all messages
 				var messages = data.concat(dataInner);
 

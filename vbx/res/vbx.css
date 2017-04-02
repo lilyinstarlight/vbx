@@ -70,7 +70,7 @@ main {
 	width: 20em;
 }
 
-.chat .you, .chat .me {
+.chat .me, .chat .you {
 	background: #222;
 	position: relative;
 	padding: 1em;
@@ -79,13 +79,13 @@ main {
 }
 
 
-.chat .you > p, .chat .me > p {
+.chat .me > p, .chat .you > p {
 	margin-top: 1em;
 	margin-bottom: 0em;
 	overflow-wrap: break-word;
 }
 
-.chat .you::after, .chat .me::after {
+.chat .me::after, .chat .you::after {
 	content: "";
 	height: 0em;
 	width: 0em;
@@ -95,23 +95,23 @@ main {
 	border-bottom-color: #222;
 }
 
-.chat .you {
+.chat .me {
 	width: 20em;
 	margin-left: auto;
 	margin-right: 0%;
 }
 
-.chat .you::after {
+.chat .me::after {
 	right: -1em;
 }
 
-.chat .me {
+.chat .you {
 	width: 20em;
 	margin-left: 0%;
 	margin-right: auto;
 }
 
-.chat .me::after {
+.chat .you::after {
 	left: -1em;
 }
 
