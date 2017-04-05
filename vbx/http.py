@@ -104,7 +104,7 @@ class CallListHandler(ListHandler):
                 self.request.query['from_'] = self.request.query['from']
                 del self.request.query['from']
 
-            return 200, [self.call_encode(call) for call in client.calls.page(**self.request.query) if not message.error_code]
+            return 200, [self.call_encode(call) for call in client.calls.page(**self.request.query)]
         except TypeError:
             raise web.HTTPError(400)
 
