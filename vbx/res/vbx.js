@@ -501,11 +501,11 @@ var open = function(number, message) {
 			embed.src = message.media_url;
 			embed.type = message.media_type;
 
-			embed.style.display = 'none';
+			embed.style.height = '0em';
 
 			embed.addEventListener('load', function(ev) {
 				// display media
-				embed.style.display = 'initial';
+				embed.style.height = 'initial';
 
 				// scroll chat down
 				container.scrollTop = 2147483646;
