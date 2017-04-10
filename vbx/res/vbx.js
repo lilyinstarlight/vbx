@@ -501,7 +501,12 @@ var open = function(number, message) {
 			embed.src = message.media_url;
 			embed.type = message.media_type;
 
+			embed.style.display = 'none';
+
 			embed.addEventListener('load', function(ev) {
+				// display media
+				embed.style.display = 'initial';
+
 				// scroll chat down
 				container.scrollTop = 2147483646;
 			});
