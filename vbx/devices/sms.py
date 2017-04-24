@@ -14,9 +14,9 @@ class SMS(vbx.Device):
             self.last = event.from_
 
             if event.from_ in vbx.config.contacts:
-                from_ = vbx.config.contacts[events.from_]
+                from_ = vbx.config.contacts[event.from_]
             else:
-                from_ = events.from_
+                from_ = event.from_
 
             msg = response.message('From: {}\n{}'.format(from_, message), to=self.number)
 
