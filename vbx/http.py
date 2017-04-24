@@ -79,7 +79,7 @@ class OutgoingHandler(AccountHandler):
                 media_url = body_url.geturl()
 
                 with urllib.request.urlopen(urllib.request.Request(url=media_url, method='HEAD')) as response:
-                    if response.get_header('Content-Type').split('/', 1)[0] not in ['image', 'video', 'audio']:
+                    if response.getheader('Content-Type').split('/', 1)[0] not in ['image', 'video', 'audio']:
                         media_url = None
 
             client.messages.create(self.request.body['to'], body=body, from_=vbx.config.number, media_url=media_url)
