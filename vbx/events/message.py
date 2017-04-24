@@ -17,12 +17,12 @@ class Message(vbx.Event):
             self.service_sid = None
 
         try:
-            self.media_type = request['MediaContentType']
+            self.media_type = request['MediaContentType0']
         except KeyError:
             self.media_type = None
 
         try:
-            self.media_url = request['MediaUrl']
+            self.media_url = request['MediaUrl0']
         except KeyError:
             self.media_url = None
 
