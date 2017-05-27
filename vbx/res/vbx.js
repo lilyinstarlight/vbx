@@ -41,6 +41,14 @@ var xhr = function(method, resource, data, callback) {
 	}
 };
 
+var clean = function(text) {
+	var div = document.createElement('div');
+
+	div.innerText = text;
+
+	return div.innerHTML;
+};
+
 var mktime = function(date) {
 	var time = '';
 
@@ -489,7 +497,7 @@ var open = function(number, message) {
 
 		// add body
 		var p = document.createElement('p');
-		p.innerText = anchorme(message.body);
+		p.innerHTML = anchorme(clean(message.body));
 
 		// join time and body into message
 		div.appendChild(time);
