@@ -14,6 +14,14 @@ body {
 	display: none;
 }
 
+a, a:link, a:visited {
+	color: #0af;
+}
+
+a:link:active, a:visited:active {
+	color: #8ff;
+}
+
 header {
 	background: #111;
 }
