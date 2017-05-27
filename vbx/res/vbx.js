@@ -310,7 +310,7 @@ var load = function() {
 				var current = recordTime.toISOString();
 				var nextTime = new Date();
 
-				// load call history
+				// load call and message history
 				xhr('get', '/calls/?start_time_after=' + current + '&to=' + my_number, undefined, function(progress) {
 					xhr('get', '/calls/?start_time_after=' + current + '&from=' + my_number, undefined, function(progressInner) {
 						xhr('get', '/calls/?start_time_before=' + current + '&end_time_after=' + current + '&to=' + my_number, undefined, function(calls) {
@@ -489,7 +489,7 @@ var open = function(number, message) {
 
 		// add body
 		var p = document.createElement('p');
-		p.innerText = message.body;
+		p.innerText = anchorme(message.body);
 
 		// join time and body into message
 		div.appendChild(time);
