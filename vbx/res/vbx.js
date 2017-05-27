@@ -41,12 +41,12 @@ var xhr = function(method, resource, data, callback) {
 	}
 };
 
-var clean = function(text) {
+var prepare = function(text) {
 	var div = document.createElement('div');
 
 	div.innerText = text;
 
-	return div.innerHTML;
+	return anchorme(div.innerHTML, {attributes: [{name: 'target', value: '_blank'}]});
 };
 
 var mktime = function(date) {
@@ -497,7 +497,7 @@ var open = function(number, message) {
 
 		// add body
 		var p = document.createElement('p');
-		p.innerHTML = anchorme(clean(message.body));
+		p.innerHTML = prepare(message.body);
 
 		// join time and body into message
 		div.appendChild(time);
