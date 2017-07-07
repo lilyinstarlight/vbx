@@ -69,7 +69,13 @@ class XMPP(vbx.Device):
 
                 to = msg['to'].node
 
-                self.twilio_client.messages.create(to, body=msg['body'], from_=self.vbx_config.number)
+                body_url = urllib.parse.urlparse(msg['body'].split(' ', 1)[0])
+                if body_url.scheme and body_url.netloc:
+                    with urllib.request.urlopen(urllib.request.Request(url=body_url.geturl(), method='HEAD')) as response:
+                        if response.getheader('Content-Type').split('/', 1)[0] in ['image', 'video', 'audio']:
+                            media_url = response.geturl()
+
+                self.twilio_client.messages.create(to, body=msg['body'], from_=self.vbx_config.number, media_url=media_url)
 
             def _send_from_twilio(self, event, msg):
                 if not self.vbx_config:
