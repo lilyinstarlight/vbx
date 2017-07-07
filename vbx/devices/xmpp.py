@@ -3,6 +3,8 @@ import functools
 import importlib
 import queue
 import threading
+import urllib.parse
+import urllib.request
 
 import twilio.twiml
 import twilio.rest
