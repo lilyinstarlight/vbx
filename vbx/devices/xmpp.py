@@ -71,6 +71,8 @@ class XMPP(vbx.Device):
 
                 to = msg['to'].node
 
+                media_url = twilio.values.unset
+
                 body_url = urllib.parse.urlparse(msg['body'].split(' ', 1)[0])
                 if body_url.scheme and body_url.netloc:
                     with urllib.request.urlopen(urllib.request.Request(url=body_url.geturl(), method='HEAD')) as response:
