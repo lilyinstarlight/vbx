@@ -58,7 +58,7 @@ class ListHandler(web.query.QueryMixIn, AccountHandler):
 
 class BrowserHandler(AccountHandler):
     def do_get(self):
-        return 200, {'number': vbx.config.number, 'token': token.to_jwt()}
+        return 200, {'number': vbx.config.number, 'token': token.to_jwt().decode()}
 
     def do_post(self):
         with vbx.devices.browser.last_lock:

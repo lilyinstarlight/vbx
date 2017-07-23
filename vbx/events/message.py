@@ -27,7 +27,7 @@ class Message(vbx.Event):
             self.media_url = None
 
     def handle(self, flows):
-        response = twilio.twiml.Response()
+        response = twilio.twiml.MessagingResponse()
 
         for flow in flows:
             flow.send(self, self.body, response)

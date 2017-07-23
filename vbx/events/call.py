@@ -28,7 +28,7 @@ class Call(vbx.Event):
             self.caller_name = None
 
     def handle(self, flows):
-        response = twilio.twiml.Response()
+        response = twilio.twiml.VoiceResponse()
 
         if self.to == vbx.config.number:
             for flow in flows:
