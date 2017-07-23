@@ -1,8 +1,6 @@
 import datetime
-import urllib.parse
-import urllib.request
 
-import twilio.values
+import twilio.base.values
 import twilio.rest
 import twilio.jwt.client
 
@@ -17,6 +15,7 @@ import vbx.config
 import vbx.events
 import vbx.devices.browser
 import vbx.log
+import vbx.util
 
 
 alias = '([a-zA-Z0-9._-]+)'
@@ -24,7 +23,7 @@ query = '(?:\?([\w=&+.:%-]*))?'
 
 http = None
 
-token = twilio.jwt.client.CapabilityToken(account_sid=vbx.config.auth[0], auth_token=vbx.config.auth[1])
+token = twilio.jwt.client.ClientCapabilityToken(account_sid=vbx.config.auth[0], auth_token=vbx.config.auth[1])
 token.allow_client_outgoing(vbx.config.app)
 token.allow_client_incoming('vbx')
 
@@ -72,13 +71,7 @@ class OutgoingHandler(AccountHandler):
     def do_post(self):
         try:
             body = self.request.body['body']
-            media_url = twilio.values.unset
-
-            body_url = urllib.parse.urlparse(body.split(' ', 1)[0])
-            if body_url.scheme and body_url.netloc:
-                with urllib.request.urlopen(urllib.request.Request(url=body_url.geturl(), method='HEAD')) as response:
-                    if response.getheader('Content-Type').split('/', 1)[0] in ['image', 'video', 'audio']:
-                        media_url = response.geturl()
+            media_url = vbx.util.get_media_url(body.split(' ', 1)[0], twilio.base.values.unset)
 
             client.messages.create(self.request.body['to'], body=body, from_=vbx.config.number, media_url=media_url)
 

@@ -3,13 +3,13 @@ import functools
 import importlib
 import queue
 import threading
-import urllib.parse
-import urllib.request
 
+import twilio.base.values
 import twilio.twiml
 import twilio.rest
 
 import vbx
+import vbx.util
 
 
 class XMPP(vbx.Device):
@@ -71,13 +71,7 @@ class XMPP(vbx.Device):
 
                 to = msg['to'].node
 
-                media_url = twilio.values.unset
-
-                body_url = urllib.parse.urlparse(msg['body'].split(' ', 1)[0])
-                if body_url.scheme and body_url.netloc:
-                    with urllib.request.urlopen(urllib.request.Request(url=body_url.geturl(), method='HEAD')) as response:
-                        if response.getheader('Content-Type').split('/', 1)[0] in ['image', 'video', 'audio']:
-                            media_url = response.geturl()
+                media_url = vbx.util.get_media_url(msg['body'].split(' ', 1)[0], twilio.base.values.unset)
 
                 self.twilio_client.messages.create(to, body=msg['body'], from_=self.vbx_config.number, media_url=media_url)
 
