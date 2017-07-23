@@ -38,7 +38,7 @@ class Call(vbx.Event):
                     response.redirect(flow.next)
                     break
         else:
-            dial = response.dial(callerId=vbx.config.number)
+            dial = response.dial(self.to, caller_id=vbx.config.number)
 
             if number.match(self.to):
                 dial.number(self.to)

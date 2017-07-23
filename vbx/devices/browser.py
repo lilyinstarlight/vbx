@@ -15,7 +15,7 @@ class Browser(vbx.Device):
             return (datetime.datetime.now() - last) < delta
 
     def dial(self, event, response):
-        response.dial().client('vbx')
+        response.dial('vbx').client('vbx')
 
     def send(self, event, message, response):
         pass
