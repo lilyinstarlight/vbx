@@ -2,7 +2,7 @@ import datetime
 
 import twilio.base.values
 import twilio.rest
-import twilio.util
+import twilio.jwt.client
 
 import web
 import web.file
@@ -23,7 +23,7 @@ query = '(?:\?([\w=&+.:%-]*))?'
 
 http = None
 
-token = twilio.util.TwilioCapability(account_sid=vbx.config.auth[0], auth_token=vbx.config.auth[1])
+token = twilio.jwt.client.ClientCapabilityToken(account_sid=vbx.config.auth[0], auth_token=vbx.config.auth[1])
 token.allow_client_outgoing(vbx.config.app)
 token.allow_client_incoming('vbx')
 
@@ -58,7 +58,7 @@ class ListHandler(web.query.QueryMixIn, AccountHandler):
 
 class BrowserHandler(AccountHandler):
     def do_get(self):
-        return 200, {'number': vbx.config.number, 'token': token.generate()}
+        return 200, {'number': vbx.config.number, 'token': token.to_jwt()}
 
     def do_post(self):
         with vbx.devices.browser.last_lock:
