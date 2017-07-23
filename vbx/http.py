@@ -2,7 +2,7 @@ import datetime
 
 import twilio.base.values
 import twilio.rest
-import twilio.jwt.client
+import twilio.util
 
 import web
 import web.file
@@ -23,7 +23,7 @@ query = '(?:\?([\w=&+.:%-]*))?'
 
 http = None
 
-token = twilio.jwt.client.ClientCapabilityToken(account_sid=vbx.config.auth[0], auth_token=vbx.config.auth[1])
+token = twilio.util.TwilioCapability(account_sid=vbx.config.auth[0], auth_token=vbx.config.auth[1])
 token.allow_client_outgoing(vbx.config.app)
 token.allow_client_incoming('vbx')
 
