@@ -5,7 +5,6 @@ import queue
 import threading
 
 import twilio.base.values
-import twilio.twiml
 import twilio.rest
 
 import vbx
