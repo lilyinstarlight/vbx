@@ -1,8 +1,8 @@
 import asyncio
 import functools
 import importlib
+import multiprocessing
 import queue
-import threading
 
 import twilio.base.values
 import twilio.rest
@@ -16,22 +16,19 @@ class XMPP(vbx.Device):
         import slixmpp
 
         class XMPPComponent(slixmpp.ComponentXMPP):
-            def __init__(self, jid, secret, server, port, target):
+            def __init__(self, jid, secret, server, port, target, timeout=0.5):
                 self.target = target
-                self.twilio_queue = queue.Queue()
+                self.twilio_queue = multiprocessing.Queue()
 
-                self.config = None
+                self.timeout = timeout
+
+                self.vbx_config = None
 
                 self.target_online = False
 
-                self.thread = threading.Thread(target=functools.partial(self.component_thread, jid, secret, server, port), name='XMPPComponent')
-                self.thread.start()
-
-            def component_thread(self, jid, secret, server, port):
-                asyncio.set_event_loop(asyncio.new_event_loop())
-
                 super().__init__(jid, secret, server, port)
 
+            def start(self):
                 self.register_plugin('xep_0030')  # service discovery
                 self.register_plugin('xep_0004')  # data forms
                 self.register_plugin('xep_0060')  # pubsub
@@ -46,7 +43,7 @@ class XMPP(vbx.Device):
                 self.connect()
 
                 while True:
-                    self.process(timeout=0.5)
+                    self.process(timeout=self.timeout)
 
                     try:
                         args = self.twilio_queue.get_nowait()
@@ -105,6 +102,9 @@ class XMPP(vbx.Device):
                 self.twilio_queue.put((event, msg))
 
         self.component = XMPPComponent(jid, secret, server, port, target)
+
+        self.process = multiprocessing.Process(target=self.component.start, name='XMPPComponent')
+        self.process.start()
 
     def online(self):
         return self.component.target_online
