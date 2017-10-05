@@ -8,7 +8,7 @@ addr = ('', 8080)
 
 # log locations
 log = '/var/log/vbx/vbx.log'
-httplog = '/var/log/vbx/http.log'
+http_log = '/var/log/vbx/http.log'
 
 # template directory to use
 template = os.path.dirname(__file__) + '/html'

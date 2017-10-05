@@ -4,17 +4,16 @@ import twilio.base.values
 import twilio.rest
 import twilio.jwt.client
 
-import web
-import web.file
-import web.form
-import web.json
-import web.page
-import web.query
+import fooster.web
+import fooster.web.file
+import fooster.web.form
+import fooster.web.json
+import fooster.web.page
+import fooster.web.query
 
 import vbx.config
 import vbx.events
 import vbx.devices.browser
-import vbx.log
 import vbx.util
 
 
@@ -33,12 +32,12 @@ routes = {}
 error_routes = {}
 
 
-class IndexPage(web.page.PageHandler):
+class IndexPage(fooster.web.page.PageHandler):
     directory = vbx.config.template
     page = 'index.html'
 
 
-class AccountHandler(web.json.JSONHandler):
+class AccountHandler(fooster.web.json.JSONHandler):
     def call_encode(self, call):
         return {'sid': call.sid, 'annotation': call.annotation, 'date': call.date_created.isoformat().replace('+00:00', 'Z'), 'direction': call.direction, 'duration': call.duration, 'from': call.from_, 'to': call.to, 'status': call.status}
 
@@ -52,7 +51,7 @@ class AccountHandler(web.json.JSONHandler):
         return encoded
 
 
-class ListHandler(web.query.QueryMixIn, AccountHandler):
+class ListHandler(fooster.web.query.QueryMixIn, AccountHandler):
     pass
 
 
@@ -77,7 +76,7 @@ class OutgoingHandler(AccountHandler):
 
             return 204, ''
         except KeyError:
-            raise web.HTTPError(400)
+            raise fooster.web.HTTPError(400)
 
 
 class ContactListHandler(AccountHandler):
@@ -90,7 +89,7 @@ class ContactHandler(AccountHandler):
         try:
             return 200, vbx.config.contacts[self.groups[0]]
         except KeyError:
-            raise web.HTTPError(404)
+            raise fooster.web.HTTPError(404)
 
 
 class CallListHandler(ListHandler):
@@ -102,7 +101,7 @@ class CallListHandler(ListHandler):
 
             return 200, [self.call_encode(call) for call in client.calls.page(**self.request.query)]
         except TypeError:
-            raise web.HTTPError(400)
+            raise fooster.web.HTTPError(400)
 
 
 class CallHandler(AccountHandler):
@@ -112,7 +111,7 @@ class CallHandler(AccountHandler):
 
             return 200, self.call_encode(call.fetch())
         except:
-            raise web.HTTPError(404)
+            raise fooster.web.HTTPError(404)
 
     def do_delete(self):
         try:
@@ -122,7 +121,7 @@ class CallHandler(AccountHandler):
 
             return 204, ''
         except:
-            raise web.HTTPError(404)
+            raise fooster.web.HTTPError(404)
 
 
 class MessageListHandler(ListHandler):
@@ -134,7 +133,7 @@ class MessageListHandler(ListHandler):
 
             return 200, [self.message_encode(message) for message in client.messages.page(**self.request.query) if not message.error_code]
         except TypeError:
-            raise web.HTTPError(400)
+            raise fooster.web.HTTPError(400)
 
 
 class MessageHandler(AccountHandler):
@@ -144,7 +143,7 @@ class MessageHandler(AccountHandler):
 
             return 200, self.message_encode(message.fetch())
         except:
-            raise web.HTTPError(404)
+            raise fooster.web.HTTPError(404)
 
     def do_delete(self):
         try:
@@ -154,10 +153,10 @@ class MessageHandler(AccountHandler):
 
             return 204, ''
         except:
-            raise web.HTTPError(404)
+            raise fooster.web.HTTPError(404)
 
 
-class FlowHandler(web.form.FormHandler):
+class FlowHandler(fooster.web.form.FormHandler):
     pass
 
 
@@ -169,9 +168,9 @@ class CallFlowHandler(FlowHandler):
             self.response.headers['Content-Type'] = 'text/xml'
             return 200, str(self.event.handle(vbx.config.calls[self.groups[0]]))
         except ValueError:
-            raise web.HTTPError(400)
+            raise fooster.web.HTTPError(400)
         except IndexError:
-            raise web.HTTPError(404)
+            raise fooster.web.HTTPError(404)
 
 
 class MessageFlowHandler(FlowHandler):
@@ -182,20 +181,20 @@ class MessageFlowHandler(FlowHandler):
             self.response.headers['Content-Type'] = 'text/xml'
             return 200, str(self.event.handle(vbx.config.messages[self.groups[0]]))
         except ValueError:
-            raise web.HTTPError(400)
+            raise fooster.web.HTTPError(400)
         except IndexError:
-            raise web.HTTPError(404)
+            raise fooster.web.HTTPError(404)
 
 
 routes.update({'/': IndexPage, '/browser': BrowserHandler, '/msg': OutgoingHandler, '/contacts/': ContactListHandler, '/contacts/' + alias: ContactHandler, '/calls/' + query: CallListHandler, '/calls/' + alias: CallHandler, '/msgs/' + query: MessageListHandler, '/msgs/' + alias: MessageHandler, '/flow/voice/' + alias: CallFlowHandler, '/flow/msg/' + alias: MessageFlowHandler})
-routes.update(web.file.new(vbx.config.resource, '/res'))
-error_routes.update(web.json.new_error())
+routes.update(fooster.web.file.new(vbx.config.resource, '/res'))
+error_routes.update(fooster.web.json.new_error())
 
 
 def start():
     global http
 
-    http = web.HTTPServer(vbx.config.addr, routes, error_routes, log=vbx.log.httplog)
+    http = fooster.web.HTTPServer(vbx.config.addr, routes, error_routes)
     http.start()
 
 
@@ -204,3 +203,9 @@ def stop():
 
     http.stop()
     http = None
+
+
+def join():
+    global http
+
+    http.join()
