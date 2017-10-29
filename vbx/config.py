@@ -5,6 +5,7 @@ import vbx.flows
 
 # address to listen on
 addr = ('', 8080)
+wsocket = ('', 8081)
 
 # log locations
 log = '/var/log/vbx/vbx.log'

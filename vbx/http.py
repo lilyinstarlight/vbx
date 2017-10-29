@@ -38,17 +38,7 @@ class IndexPage(fooster.web.page.PageHandler):
 
 
 class AccountHandler(fooster.web.json.JSONHandler):
-    def call_encode(self, call):
-        return {'sid': call.sid, 'annotation': call.annotation, 'date': call.date_created.isoformat().replace('+00:00', 'Z'), 'direction': call.direction, 'duration': call.duration, 'from': call.from_, 'to': call.to, 'status': call.status}
-
-    def message_encode(self, msg):
-        encoded = {'sid': msg.sid, 'body': msg.body, 'date': msg.date_created.isoformat().replace('+00:00', 'Z'), 'direction': msg.direction, 'from': msg.from_, 'to': msg.to, 'media_url': None, 'media_type': None}
-
-        if int(msg.num_media) > 0:
-            media = msg.media.list(limit=1)[0]
-            encoded.update({'media_url': (client.api.base_url + media.uri)[:-5], 'media_type': media.content_type})
-
-        return encoded
+    pass
 
 
 class ListHandler(fooster.web.query.QueryMixIn, AccountHandler):
@@ -99,7 +89,7 @@ class CallListHandler(ListHandler):
                 self.request.query['from_'] = self.request.query['from']
                 del self.request.query['from']
 
-            return 200, [self.call_encode(call) for call in client.calls.page(**self.request.query)]
+            return 200, [vbx.util.call_encode(call) for call in client.calls.page(**self.request.query)]
         except TypeError:
             raise fooster.web.HTTPError(400)
 
@@ -109,7 +99,7 @@ class CallHandler(AccountHandler):
         try:
             call = client.calls.get(self.groups[0])
 
-            return 200, self.call_encode(call.fetch())
+            return 200, vbx.util.call_encode(call.fetch())
         except:
             raise fooster.web.HTTPError(404)
 
@@ -131,7 +121,7 @@ class MessageListHandler(ListHandler):
                 self.request.query['from_'] = self.request.query['from']
                 del self.request.query['from']
 
-            return 200, [self.message_encode(message) for message in client.messages.page(**self.request.query) if not message.error_code]
+            return 200, [vbx.util.message_encode(message) for message in client.messages.page(**self.request.query) if not message.error_code]
         except TypeError:
             raise fooster.web.HTTPError(400)
 
@@ -141,7 +131,7 @@ class MessageHandler(AccountHandler):
         try:
             message = client.messages.get(self.groups[0])
 
-            return 200, self.message_encode(message.fetch())
+            return 200, vbx.util.message_encode(message.fetch())
         except:
             raise fooster.web.HTTPError(404)
 
