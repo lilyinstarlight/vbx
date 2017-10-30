@@ -241,12 +241,12 @@ main {
 	height: 4em;
 }
 
-.phone td > button.end {
+.phone td > button.hangup {
 	background: #a22;
 	padding: 0em 0em;
 }
 
-.phone td > button.end:hover {
+.phone td > button.hangup:hover {
 	background: #d55;
 }
 
@@ -307,4 +307,10 @@ input {
 
 .right {
 	float: right;
+}
+
+.loader {
+	width: 100%;
+	text-align: center;
+	background: #353c39;
 }

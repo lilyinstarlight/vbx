@@ -7,6 +7,10 @@ class Device(vbx.Flow):
 
         super().__init__(**kwargs)
 
+    def start(self):
+        for device in self.devices:
+            device.start()
+
     def dial(self, event, response):
         for device in self.devices:
             if device.online():

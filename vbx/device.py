@@ -2,6 +2,9 @@ class Device:
     def online(self):
         return None
 
+    def start(self):
+        pass
+
     def dial(self, event, response):
         raise NotImplementedError
 

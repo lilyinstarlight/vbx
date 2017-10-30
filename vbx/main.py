@@ -1,5 +1,6 @@
 import argparse
 import importlib.util
+import itertools
 import logging
 import signal
 import sys
@@ -68,11 +69,19 @@ if config.http_log:
 from vbx import name, version
 from vbx import http
 
+import vbx.flows
+
 
 log.info(name + ' ' + version + ' starting...')
 
 # start everything
 http.start()
+
+# start device components
+for flows in itertools.chain(config.calls.values(), config.messages.values()):
+    for flow in flows:
+        if isinstance(flow, vbx.flows.Device):
+            flow.start()
 
 
 # cleanup function

@@ -112,6 +112,7 @@ class XMPP(vbx.Device):
     def __init__(self, jid, secret, server, port, target):
         self.component = XMPPComponent(jid, secret, server, port, target)
 
+    def start(self):
         self.process = multiprocessing.Process(target=self.component.start, name='XMPPComponent')
         self.process.start()
 

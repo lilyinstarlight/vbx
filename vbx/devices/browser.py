@@ -1,8 +1,11 @@
 import asyncio
 import datetime
+import importlib
 import itertools
 import json
 import multiprocessing
+
+import twilio
 
 import websockets
 
@@ -36,7 +39,7 @@ class BrowserComponent:
         current_message = yield from websocket.recv()
 
         with self.clients.get_lock():
-            self.clients += 1
+            self.clients.value += 1
 
         try:
             while True:
@@ -44,7 +47,7 @@ class BrowserComponent:
                 last_message = None;
 
                 send = False
-                for call in itertools.chain(client.calls.page(to=self.vbx_config.number), client.calls.page(from_=self.vbx_config.number)):
+                for call in itertools.chain(self.twilio_client.calls.page(to=self.vbx_config.number), self.twilio_client.calls.page(from_=self.vbx_config.number)):
                     if send:
                         last_call = call
                         yield from asyncio.wait(ws.send(json.dumps(vbx.util.call_encode(call))) for ws in self.websockets)
@@ -53,13 +56,13 @@ class BrowserComponent:
                         send = True
 
                 send = False
-                for message in itertools.chain(client.message.page(to=self.vbx_config.number), client.message.page(from_=self.vbx_config.number)):
+                for message in itertools.chain(self.twilio_client.messages.page(to=self.vbx_config.number), self.twilio_client.messages.page(from_=self.vbx_config.number)):
                     if send:
                         if not message.error_code:
                             last_message = message
                             yield from asyncio.wait(ws.send(json.dumps(vbx.util.message_encode(message))) for ws in self.websockets)
 
-                    if message.sid == message_call:
+                    if message.sid == current_message:
                         send = True
 
                 if last_call:
@@ -74,7 +77,7 @@ class BrowserComponent:
             yield from websocket.close()
 
             with self.clients.get_lock():
-                self.clients -= 1
+                self.clients.value -= 1
 
             self.websockets.remove(websocket)
 
@@ -82,12 +85,28 @@ class BrowserComponent:
         return self.clients.value > 0
 
 
+component = None
+master = False
+
+
 class Browser(vbx.Device):
     def __init__(self):
-        self.component = BrowserComponent()
+        global component
 
-        self.process = multiprocessing.Process(target=self.component.start, name='BrowserComponent')
-        self.process.start()
+        if component:
+            self.component = component
+        else:
+            self.component = BrowserComponent()
+            component = self.component
+
+    def start(self):
+        global master
+
+        if not master:
+            master = True
+
+            self.process = multiprocessing.Process(target=self.component.start, name='BrowserComponent')
+            self.process.start()
 
     def online(self):
         return self.component.online()

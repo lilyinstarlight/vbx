@@ -150,6 +150,8 @@ var load = function() {
 
 			tbody.appendChild(tr);
 		});
+
+		contacts.children[0].remove();
 	});
 
 	// load call and message history
@@ -252,9 +254,11 @@ var load = function() {
 		});
 
 		// initiate socket updates
-		socket = new WebSocket('wss://' + location.host + '/socket');
-		socket.send(start_call);
-		socket.send(start_message);
+		socket = new WebSocket(data.socket);
+		socket.addEventListener('open', function(ev) {
+			socket.send(start_call);
+			socket.send(start_message);
+		}, false);
 		socket.addEventListener('message', function(ev) {
 			var data = JSON.parse(ev.data);
 			window.save(data);
@@ -406,7 +410,7 @@ var save = function(ev) {
 		container.scrollTop = 2147483646;
 	};
 
-	if (document.getElementById('history_' + data.sid) === null)
+	if (document.getElementById('history_' + ev.sid) === null)
 		write(record, ev);
 	else
 		update(ev);
@@ -420,7 +424,7 @@ var open = function(number, message) {
 		chat.classList.add('chat');
 		chat.style.display = 'none';
 
-		var pong = document.createElement('span');
+		var pong = document.createElement('div');
 		pong.classList.add('pong-loader');
 		pong.innerText = 'Loading...';
 
@@ -520,7 +524,7 @@ var open = function(number, message) {
 		container.scrollTop = 2147483646;
 	}
 
-	if (document.getElementById(data.sid) === null) {
+	if (document.getElementById(message.sid) === null) {
 		if (document.getElementById(number) === null) {
 			// show number
 			var container = show(number);
