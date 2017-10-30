@@ -1,7 +1,8 @@
 import asyncio
 import datetime
+import itertools
+import json
 import multiprocessing
-import queue
 
 import websockets
 
@@ -10,20 +11,19 @@ import vbx.util
 
 
 class BrowserComponent:
-    def __init__(self, host, port, timeout=0.5):
-        self.host = host
-        self.port = port
+    def __init__(self, timeout=0.5):
         self.timeout = timeout
-
-        self.call_queue = multiprocessing.Queue()
-        self.message_queue = multiprocessing.Queue()
 
         self.clients = multiprocessing.Value('B')
 
         self.websockets = []
 
     def start(self):
-        self.server = websockets.serve(self.serve, self.host, self.port)
+        self.vbx_config = importlib.import_module('vbx.config')
+
+        self.twilio_client = twilio.rest.Client(username=self.vbx_config.auth[0], password=self.vbx_config.auth[1])
+
+        self.server = websockets.serve(self.serve, self.vbx_config.wsocket[0], self.vbx_config.wsocket[1])
 
         asyncio.get_event_loop().run_until_complete(self.server)
         asyncio.get_event_loop().run_forever()
@@ -32,25 +32,44 @@ class BrowserComponent:
     def serve(self, websocket, path):
         self.websockets.append(websocket)
 
+        current_call = yield from websocket.recv()
+        current_message = yield from websocket.recv()
+
         with self.clients.get_lock():
             self.clients += 1
 
         try:
             while True:
-                    try:
-                        call = vbx.util.call_encode(self.call_queue.get_nowait())
-                        yield from asyncio.wait(ws.send(call) for ws in self.websockets)
-                    except queue.Empty:
-                        pass
+                last_call = None;
+                last_message = None;
 
-                    try:
-                        message = vbx.util.message_encode(self.message_queue.get_nowait())
-                        yield from asyncio.wait(ws.send(message) for ws in self.websockets)
-                    except queue.Empty:
-                        pass
+                send = False
+                for call in itertools.chain(client.calls.page(to=self.vbx_config.number), client.calls.page(from_=self.vbx_config.number)):
+                    if send:
+                        last_call = call
+                        yield from asyncio.wait(ws.send(json.dumps(vbx.util.call_encode(call))) for ws in self.websockets)
 
-                    yield from websocket.ping()
-                    yield from asyncio.sleep(self.timeout)
+                    if call.sid == current_call:
+                        send = True
+
+                send = False
+                for message in itertools.chain(client.message.page(to=self.vbx_config.number), client.message.page(from_=self.vbx_config.number)):
+                    if send:
+                        if not message.error_code:
+                            last_message = message
+                            yield from asyncio.wait(ws.send(json.dumps(vbx.util.message_encode(message))) for ws in self.websockets)
+
+                    if message.sid == message_call:
+                        send = True
+
+                if last_call:
+                    current_call = last_call.sid
+
+                if last_message:
+                    current_message = last_message.sid
+
+                yield from websocket.ping()
+                yield from asyncio.sleep(self.timeout)
         finally:
             yield from websocket.close()
 
@@ -62,16 +81,10 @@ class BrowserComponent:
     def online(self):
         return self.clients.value > 0
 
-    def dial(self, event):
-        self.call_queue.put(event)
-
-    def send(self, event):
-        self.message_queue.put(event)
-
 
 class Browser(vbx.Device):
     def __init__(self):
-        self.component = BrowserComponent(*vbx.config.wsocket)
+        self.component = BrowserComponent()
 
         self.process = multiprocessing.Process(target=self.component.start, name='BrowserComponent')
         self.process.start()
@@ -82,7 +95,5 @@ class Browser(vbx.Device):
     def dial(self, event, response):
         response.dial('vbx').client('vbx')
 
-        self.component.dial(event)
-
     def send(self, event, message, response):
-        self.component.send(event)
+        pass

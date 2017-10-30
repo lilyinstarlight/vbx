@@ -241,12 +241,12 @@ main {
 	height: 4em;
 }
 
-.phone td > button.hangup {
+.phone td > button.end {
 	background: #a22;
 	padding: 0em 0em;
 }
 
-.phone td > button.hangup:hover {
+.phone td > button.end:hover {
 	background: #d55;
 }
 

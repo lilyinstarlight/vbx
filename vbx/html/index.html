@@ -5,7 +5,10 @@
 
 		<link rel="stylesheet" href="/res/vbx.css"/>
 
+		<link rel="stylesheet" href="//cdn.rawgit.com/jlong/css-spinners/master/css/spinner/pong.css"/>
+
 		<script src="/res/vbx.js"></script>
+
 		<script src="//cdn.rawgit.com/alexcorvi/anchorme.js/gh-pages/dist-browser/anchorme.min.js"></script>
 		<script src="//media.twiliocdn.com/sdk/js/client/v1.4/twilio.min.js"></script>
 	</head>
@@ -20,6 +23,8 @@
 
 		<main id="main">
 			<div id="history" class="history">
+				<span class="pong-loader">Loading...</span>
+
 				<table>
 					<tbody>
 					</tbody>
@@ -27,6 +32,8 @@
 			</div>
 
 			<div id="contacts" class="contacts">
+				<span class="pong-loader">Loading...</span>
+
 				<table>
 					<tbody>
 					</tbody>
@@ -63,9 +70,9 @@
 							<td><button onclick="window.click('#')">#</button></td>
 						</tr>
 						<tr>
-							<td><button onclick="window.click('hangup')" class="hangup">Hangup</button></td>
+							<td><button id="hangup" onclick="window.click('hangup')" class="hangup">---</button></td>
 							<td></td>
-							<td><button onclick="window.click('dial')" class="dial">Dial</button></td>
+							<td><button id="dial" onclick="window.click('dial')" class="dial">Dial</button></td>
 						</tr>
 					</tbody>
 				</table>

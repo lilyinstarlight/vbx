@@ -39,7 +39,7 @@ setup(
     url='https://github.com/fkmclane/vbx',
     author='Foster McLane',
     author_email='fkmclane@gmail.com',
-    install_requires=['fooster-web', 'twilio==6.4.3', 'slixmpp'],
+    install_requires=['fooster-web', 'twilio==6.4.3', 'slixmpp', 'websockets'],
     packages=find_packages(),
     package_data={'': ['html/*.*', 'res/*.*']},
     entry_points = {'console_scripts': ['vbx = vbx.main']},

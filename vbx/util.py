@@ -1,10 +1,8 @@
 import urllib.parse
 import urllib.request
 
-import vbx.config
 
-
-client = twilio.rest.Client(username=vbx.config.auth[0], password=vbx.config.auth[1])
+api_base = 'https://api.twilio.com/2010-04-01'
 
 
 def get_media_url(url, default=None):
@@ -26,6 +24,6 @@ def message_encode(msg):
 
     if int(msg.num_media) > 0:
         media = msg.media.list(limit=1)[0]
-        encoded.update({'media_url': (client.api.base_url + media.uri)[:-5], 'media_type': media.content_type})
+        encoded.update({'media_url': (api_base + media.uri)[:-5], 'media_type': media.content_type})
 
     return encoded

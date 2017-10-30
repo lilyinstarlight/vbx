@@ -27,6 +27,7 @@ token.allow_client_outgoing(vbx.config.app)
 token.allow_client_incoming('vbx')
 
 client = twilio.rest.Client(username=vbx.config.auth[0], password=vbx.config.auth[1])
+vbx.util.api_base = client.api.base_url
 
 routes = {}
 error_routes = {}
@@ -49,12 +50,6 @@ class BrowserHandler(AccountHandler):
     def do_get(self):
         return 200, {'number': vbx.config.number, 'token': token.to_jwt().decode()}
 
-    def do_post(self):
-        with vbx.devices.browser.last_lock:
-            vbx.devices.browser.last = datetime.datetime.now()
-
-        return 204, ''
-
 
 class OutgoingHandler(AccountHandler):
     def do_post(self):
@@ -62,9 +57,9 @@ class OutgoingHandler(AccountHandler):
             body = self.request.body['body']
             media_url = vbx.util.get_media_url(body.split(' ', 1)[0], twilio.base.values.unset)
 
-            client.messages.create(self.request.body['to'], body=body, from_=vbx.config.number, media_url=media_url)
+            message = client.messages.create(self.request.body['to'], body=body, from_=vbx.config.number, media_url=media_url)
 
-            return 204, ''
+            return 200, vbx.util.message_encode(message)
         except KeyError:
             raise fooster.web.HTTPError(400)
 

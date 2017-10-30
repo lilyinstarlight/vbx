@@ -5,11 +5,19 @@ var conversations = [];
 var record = null;
 var contacts = null;
 var phone = null;
+var dial = null;
+var end = null;
 var message = null;
 var message_number = null;
 var last = null;
 var state = 'idle';
 var statusline = null;
+
+var title = null;
+
+var socket = null;
+var start_call = null;
+var start_message = null;
 
 var contact = {};
 
@@ -18,9 +26,6 @@ var my_number = null;
 var token = null;
 var connection = null;
 var incoming = null;
-
-var recordTime = new Date(0);
-var messageTime = new Date();
 
 var xhr = function(method, resource, data, callback) {
 	var req = new XMLHttpRequest();
@@ -66,9 +71,18 @@ var mktime = function(date) {
 };
 
 var notify = function(message) {
+	if (document.hasFocus())
+		return;
+
+	document.title = title + ' - ' + message;
+
 	if (Notification.permission === 'granted')
 		var notification = new Notification(message);
 };
+
+var clear = function() {
+	document.title = title;
+}
 
 if (Notification.permission !== 'granted' && Notification.permission !== 'denied')
 	Notification.requestPermission();
@@ -82,17 +96,21 @@ var load = function() {
 	record = document.getElementById('history');
 	contacts = document.getElementById('contacts');
 	phone = document.getElementById('phone');
+	dial = document.getElementById('dial');
+	end = document.getElementById('end');
 	message = document.getElementById('message');
 	message_number = document.getElementById('message_number');
 	statusline = document.getElementById('status');
 
 	contact = {};
 
+	title = document.title;
+
 	// load contacts
 	xhr('get', '/contacts/', undefined, function(response) {
 		contact = response;
 
-		var tbody = contacts.children[0].children[0];
+		var tbody = contacts.children[1].children[0];
 
 		Object.keys(contact).forEach(function(key) {
 			var span_name = document.createElement('span');
@@ -134,6 +152,38 @@ var load = function() {
 		});
 	});
 
+	// load call and message history
+	xhr('get', '/calls/?to=' + my_number, undefined, function(calls) {
+		xhr('get', '/calls/?from=' + my_number, undefined, function(callsInner) {
+			xhr('get', '/msgs/?to=' + my_number, undefined, function(msgs) {
+				xhr('get', '/msgs/?from=' + my_number, undefined, function(msgsInner) {
+					// get all history elements
+					var entries = calls.concat(callsInner).concat(msgs).concat(msgsInner);
+
+					// filter out extra entries
+					entries = entries.filter(function(entry) {
+						return (entry.to !== 'client:vbx' && entry.from !== 'client:vbx') && (entry.direction === 'inbound' || entry.direction === 'outbound-api');
+					});
+
+					// sort by date
+					entries.sort(function(left, right) {
+						return new Date(left.date) - new Date(right.date);
+					});
+
+					// generate elements
+					entries.forEach(function(ev) {
+						save(ev);
+
+						if ('status' in ev)
+							start_call = ev.sid;
+						else
+							start_message = ev.sid;
+					});
+				});
+			});
+		});
+	});
+
 	// setup callbacks
 	xhr('get', '/browser', undefined, function(data) {
 		// get number
@@ -148,11 +198,15 @@ var load = function() {
 		Twilio.Device.connect(function(conn) {
 			state = 'connected';
 			statusline.innerText = 'Connected.';
+			dial.innerText = '---';
+			end.innerText = 'Hangup';
 		});
 
 		Twilio.Device.disconnect(function(conn) {
 			state = 'idle';
 			statusline.innerText = 'Dial a Number...';
+			dial.innerText = 'Dial';
+			end.innerText = '---';
 		});
 
 		Twilio.Device.incoming(function(conn) {
@@ -167,9 +221,10 @@ var load = function() {
 				from = contact[from];
 
 			statusline.innerText = 'Incoming Call From ' + from;
+			dial.innerText = 'Answer';
+			end.innerText = 'Reject';
 
-			if (!document.hasFocus())
-				window.notify(statusline.innerText);
+			window.notify(statusline.innerText);
 
 			// open phone
 			select('phone');
@@ -178,6 +233,8 @@ var load = function() {
 		Twilio.Device.cancel(function(conn) {
 			state = 'idle';
 			statusline.innerText = 'Dial a Number...';
+			dial.innerText = 'Dial';
+			end.innerText = '---';
 
 			// close phone
 			select(last);
@@ -194,216 +251,21 @@ var load = function() {
 			});
 		});
 
-		// setup history callbacks
-		var recordUpdate = function() {
-			// ignore costly history update if not focused
-			if (record.style.display === '') {
-				var update = function(data) {
-					var span = document.getElementById('history_' + data.sid).children[1].children[0];
+		// initiate socket updates
+		socket = new WebSocket('wss://' + location.host + '/socket');
+		socket.send(start_call);
+		socket.send(start_message);
+		socket.addEventListener('message', function(ev) {
+			var data = JSON.parse(ev.data);
+			window.save(data);
 
-					if ('status' in data) {
-						var message = '';
-
-						if (data.direction === 'inbound')
-							message += 'Incoming';
-						else
-							message += 'Outgoing';
-
-						message += ' Call:';
-
-						if (data.status === 'queued')
-							message += ' Queued';
-						else if (data.status === 'ringing')
-							message += ' Ringing';
-						else if (data.status === 'in-progress')
-							message += ' In Progress';
-						else if (data.status === 'canceled')
-							message += ' Canceled';
-						else if (data.status === 'completed')
-							message += ' Completed (' + data.duration + ' seconds)';
-						else if (data.status === 'failed')
-							message += ' Failed';
-						else if (data.status === 'busy')
-							message += ' Busy';
-						else if (data.status === 'no-answer')
-							message += ' No Answer';
-						else
-							message += ' Unknown';
-
-						span.innerText = message;
-					}
-					else if ('body' in data) {
-						var message = '';
-
-						if (data.direction === 'inbound')
-							message += 'Incoming';
-						else
-							message += 'Outgoing';
-
-						message += ' Message:';
-
-						message += ' ' + data.body;
-
-						if (data.media_url !== null)
-							message += ' [media]';
-
-						span.innerText = message;
-					}
-					else {
-						span.innerText = data;
-					}
-				};
-
-				var write = function(container, data) {
-					var tbody = record.children[0].children[0];
-
-					if (data.direction === 'inbound')
-						var number = data.from;
-					else
-						var number = data.to;
-
-					var other = number in contact ? contact[number] : number;
-
-					var span_other = document.createElement('span');
-					var span_data = document.createElement('span');
-					var time = document.createElement('time');
-					var button_message = document.createElement('button');
-					var button_call = document.createElement('button');
-
-					span_other.innerText = other;
-
-					time.innerText = window.mktime(new Date(data.date));
-
-					button_message.innerText = 'Message';
-					button_call.innerText = 'Call';
-
-					button_message.addEventListener('click', function(ev) {
-						window.open(number);
-					});
-					button_call.addEventListener('click', function(ev) {
-						window.call(number);
-					});
-
-					var tr = document.createElement('tr');
-
-					tr.id = 'history_' + data.sid;
-
-					var td_other = document.createElement('td');
-					var td_data = document.createElement('td');
-					var td_time = document.createElement('td');
-					var td_message = document.createElement('td');
-					var td_call = document.createElement('td');
-
-					td_other.appendChild(span_other);
-					td_data.appendChild(span_data);
-					td_time.appendChild(time);
-					td_message.appendChild(button_message);
-					td_call.appendChild(button_call);
-
-					tr.appendChild(td_other);
-					tr.appendChild(td_data);
-					tr.appendChild(td_time);
-					tr.appendChild(td_message);
-					tr.appendChild(td_call);
-
-					tbody.appendChild(tr);
-
-					update(data);
-
-					// scroll history down
-					container.scrollTop = 2147483646;
-				};
-
-				var currentTime = recordTime;
-				var current = recordTime.toISOString();
-				var nextTime = new Date();
-
-				// load call and message history
-				xhr('get', '/calls/?start_time_after=' + current + '&to=' + my_number, undefined, function(progress) {
-					xhr('get', '/calls/?start_time_after=' + current + '&from=' + my_number, undefined, function(progressInner) {
-						xhr('get', '/calls/?start_time_before=' + current + '&end_time_after=' + current + '&to=' + my_number, undefined, function(calls) {
-							xhr('get', '/calls/?start_time_before=' + current + '&end_time_after=' + current + '&from=' + my_number, undefined, function(callsInner) {
-								xhr('get', '/msgs/?date_sent_after=' + current + '&to=' + my_number, undefined, function(msgs) {
-									xhr('get', '/msgs/?date_sent_after=' + current + '&from=' + my_number, undefined, function(msgsInner) {
-										// get all history elements
-										var entries = progress.concat(progressInner).concat(calls).concat(callsInner).concat(msgs).concat(msgsInner);
-
-										// filter out extra entries
-										entries = entries.filter(function(entry) {
-											return (entry.to !== 'client:vbx' && entry.from !== 'client:vbx') && (entry.direction === 'inbound' || entry.direction === 'outbound-api');
-										});
-
-										// sort by date
-										entries.sort(function(left, right) {
-											return new Date(left.date) - new Date(right.date);
-										});
-
-										// generate elements
-										entries.forEach(function(data) {
-											if (document.getElementById('history_' + data.sid) === null)
-												write(record, data);
-											else
-												update(data);
-										});
-									});
-								});
-							});
-						});
-					});
-				});
-
-				recordTime = nextTime;
+			// check if message
+			if ('body' in data) {
+				// display message
+				window.notify((data.from in contact ? contact[data.from] : data.from) + ': ' + data.body);
+				window.open(data.from, message);
 			}
-
-			setTimeout(recordUpdate, 2000);
-		};
-
-		// initiate history updates
-		recordUpdate();
-
-		// setup message callbacks
-		var messageUpdate = function() {
-			var currentTime = messageTime;
-			var current = messageTime.toISOString();
-			var nextTime = new Date();
-
-			xhr('get', '/msgs/?date_sent_after=' + current + '&to=' + my_number, undefined, function(data) {
-				data.forEach(function(message) {
-					// prevent double writes
-					if (document.getElementById(message.sid) === null) {
-						if (!document.hasFocus())
-							window.notify((message.from in contact ? contact[message.from] : message.from) + ': ' + message.body);
-
-						window.open(message.from, message);
-					}
-				});
-			});
-
-			xhr('get', '/msgs/?date_sent_after=' + current + '&from=' + my_number, undefined, function(data) {
-				data.forEach(function(message) {
-					// prevent double writes
-					if (document.getElementById(message.sid) === null)
-						window.open(message.to, message);
-				});
-			});
-
-			messageTime = nextTime;
-
-			setTimeout(messageUpdate, 2000);
-		};
-
-		// initiate message updates
-		messageUpdate();
-
-		// setup ping callbacks
-		var pingUpdate = function() {
-			xhr('post', '/browser', {});
-
-			setTimeout(pingUpdate, 5000);
-		};
-
-		// initiate ping updates
-		pingUpdate();
+		}, false);
 	});
 
 	// select nothing
@@ -426,6 +288,130 @@ var load = function() {
 	document.head.appendChild(scrollfix);
 };
 
+var save = function(ev) {
+	var update = function(data) {
+		var span = document.getElementById('history_' + data.sid).children[1].children[0];
+
+		// check if call
+		if ('status' in data) {
+			var message = '';
+
+			if (data.direction === 'inbound')
+				message += 'Incoming';
+			else
+				message += 'Outgoing';
+
+			message += ' Call:';
+
+			if (data.status === 'queued')
+				message += ' Queued';
+			else if (data.status === 'ringing')
+				message += ' Ringing';
+			else if (data.status === 'in-progress')
+				message += ' In Progress';
+			else if (data.status === 'canceled')
+				message += ' Canceled';
+			else if (data.status === 'completed')
+				message += ' Completed (' + data.duration + ' seconds)';
+			else if (data.status === 'failed')
+				message += ' Failed';
+			else if (data.status === 'busy')
+				message += ' Busy';
+			else if (data.status === 'no-answer')
+				message += ' No Answer';
+			else
+				message += ' Unknown';
+
+			span.innerText = message;
+		}
+		else if ('body' in data) {
+			var message = '';
+
+			if (data.direction === 'inbound')
+				message += 'Incoming';
+			else
+				message += 'Outgoing';
+
+			message += ' Message:';
+
+			message += ' ' + data.body;
+
+			if (data.media_url !== null)
+				message += ' [media]';
+
+			span.innerText = message;
+		}
+		else {
+			span.innerText = data;
+		}
+	};
+
+	var write = function(container, data) {
+		var tbody = container.children[1].children[0];
+
+		if (data.direction === 'inbound')
+			var number = data.from;
+		else
+			var number = data.to;
+
+		var other = number in contact ? contact[number] : number;
+
+		var span_other = document.createElement('span');
+		var span_data = document.createElement('span');
+		var time = document.createElement('time');
+		var button_message = document.createElement('button');
+		var button_call = document.createElement('button');
+
+		span_other.innerText = other;
+
+		time.innerText = window.mktime(new Date(data.date));
+
+		button_message.innerText = 'Message';
+		button_call.innerText = 'Call';
+
+		button_message.addEventListener('click', function(ev) {
+			window.open(number);
+		});
+		button_call.addEventListener('click', function(ev) {
+			window.call(number);
+		});
+
+		var tr = document.createElement('tr');
+
+		tr.id = 'history_' + data.sid;
+
+		var td_other = document.createElement('td');
+		var td_data = document.createElement('td');
+		var td_time = document.createElement('td');
+		var td_message = document.createElement('td');
+		var td_call = document.createElement('td');
+
+		td_other.appendChild(span_other);
+		td_data.appendChild(span_data);
+		td_time.appendChild(time);
+		td_message.appendChild(button_message);
+		td_call.appendChild(button_call);
+
+		tr.appendChild(td_other);
+		tr.appendChild(td_data);
+		tr.appendChild(td_time);
+		tr.appendChild(td_message);
+		tr.appendChild(td_call);
+
+		tbody.appendChild(tr);
+
+		update(data);
+
+		// scroll history down
+		container.scrollTop = 2147483646;
+	};
+
+	if (document.getElementById('history_' + data.sid) === null)
+		write(record, ev);
+	else
+		update(ev);
+};
+
 var open = function(number, message) {
 	var show = function(number) {
 		// create new chat block
@@ -433,6 +419,10 @@ var open = function(number, message) {
 		chat.id = number;
 		chat.classList.add('chat');
 		chat.style.display = 'none';
+
+		var pong = document.createElement('span');
+		pong.classList.add('pong-loader');
+		pong.innerText = 'Loading...';
 
 		var container = document.createElement('div');
 
@@ -447,6 +437,7 @@ var open = function(number, message) {
 			}
 		});
 
+		chat.appendChild(pong);
 		chat.appendChild(container);
 		chat.appendChild(input);
 
@@ -529,41 +520,43 @@ var open = function(number, message) {
 		container.scrollTop = 2147483646;
 	}
 
-	if (document.getElementById(number) === null) {
-		// show number
-		var container = show(number);
+	if (document.getElementById(data.sid) === null) {
+		if (document.getElementById(number) === null) {
+			// show number
+			var container = show(number);
 
-		// bring chat forward
-		select(number);
+			// bring chat forward
+			select(number);
 
-		// load chat
-		xhr('get', '/msgs/?to=' + number + '&from=' + my_number, undefined, function(data) {
-			xhr('get', '/msgs/?from=' + number + '&to=' + my_number, undefined, function(dataInner) {
-				// get all messages
-				var messages = data.concat(dataInner);
+			// load chat
+			xhr('get', '/msgs/?to=' + number + '&from=' + my_number, undefined, function(data) {
+				xhr('get', '/msgs/?from=' + number + '&to=' + my_number, undefined, function(dataInner) {
+					// get all messages
+					var messages = data.concat(dataInner);
 
-				// sort by date
-				messages.sort(function(left, right) {
-					return new Date(left.date) - new Date(right.date);
-				});
+					// sort by date
+					messages.sort(function(left, right) {
+						return new Date(left.date) - new Date(right.date);
+					});
 
-				// generate elements
-				messages.forEach(function(message) {
-					write(container, number, message);
+					// generate elements
+					messages.forEach(function(message) {
+						write(container, number, message);
+					});
 				});
 			});
-		});
-	}
-	else {
-		// get container
-		var container = document.getElementById(number).children[0];
+		}
+		else {
+			// get container
+			var container = document.getElementById(number).children[1];
 
-		// bring chat forward
-		select(number);
+			// bring chat forward
+			select(number);
 
-		// load given message
-		if (message !== undefined)
-			write(container, number, message);
+			// load given message
+			if (message !== undefined)
+				write(container, number, message);
+		}
 	}
 };
 
@@ -584,7 +577,7 @@ var close = function(number) {
 
 	// remove button
 	nav.removeChild(container);
-	buttons.splice(buttons.indexOf(container.children[0]), 1);
+	buttons.splice(buttons.indexOf(container.children[1]), 1);
 
 	// bring last thing forward
 	select(last);
@@ -622,6 +615,8 @@ var click = function(key) {
 				key = '+';
 
 			statusline.innerText = key;
+			dial.innerText = 'Dial';
+			end.innerText = 'Cancel';
 		}
 
 		state = 'dialing';
@@ -632,6 +627,8 @@ var click = function(key) {
 		}
 		else if (key === 'hangup') {
 			statusline.innerText = 'Dial a Number...';
+			dial.innerText = 'Dial';
+			end.innerText = '---';
 			state = 'idle';
 		}
 		else {
@@ -652,6 +649,8 @@ var click = function(key) {
 
 			select(last);
 			statusline.innerText = 'Dial a Number...';
+			dial.innerText = 'Dial';
+			end.innerText = '---';
 			state = 'idle';
 		}
 	}
@@ -743,3 +742,4 @@ var select = function(id) {
 };
 
 window.addEventListener('load', load);
+window.addEventListener('focus', clear);
