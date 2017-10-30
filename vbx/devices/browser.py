@@ -73,6 +73,8 @@ class BrowserComponent:
 
                 yield from websocket.ping()
                 yield from asyncio.sleep(self.timeout)
+        except websockets.exceptions.ConnectionClosed:
+            pass
         finally:
             yield from websocket.close()
 

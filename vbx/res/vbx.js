@@ -524,43 +524,41 @@ var open = function(number, message) {
 		container.scrollTop = 2147483646;
 	}
 
-	if (document.getElementById(message.sid) === null) {
-		if (document.getElementById(number) === null) {
-			// show number
-			var container = show(number);
+	if (document.getElementById(number) === null) {
+		// show number
+		var container = show(number);
 
-			// bring chat forward
-			select(number);
+		// bring chat forward
+		select(number);
 
-			// load chat
-			xhr('get', '/msgs/?to=' + number + '&from=' + my_number, undefined, function(data) {
-				xhr('get', '/msgs/?from=' + number + '&to=' + my_number, undefined, function(dataInner) {
-					// get all messages
-					var messages = data.concat(dataInner);
+		// load chat
+		xhr('get', '/msgs/?to=' + number + '&from=' + my_number, undefined, function(data) {
+			xhr('get', '/msgs/?from=' + number + '&to=' + my_number, undefined, function(dataInner) {
+				// get all messages
+				var messages = data.concat(dataInner);
 
-					// sort by date
-					messages.sort(function(left, right) {
-						return new Date(left.date) - new Date(right.date);
-					});
+				// sort by date
+				messages.sort(function(left, right) {
+					return new Date(left.date) - new Date(right.date);
+				});
 
-					// generate elements
-					messages.forEach(function(message) {
-						write(container, number, message);
-					});
+				// generate elements
+				messages.forEach(function(message) {
+					write(container, number, message);
 				});
 			});
-		}
-		else {
-			// get container
-			var container = document.getElementById(number).children[1];
+		});
+	}
+	else {
+		// get container
+		var container = document.getElementById(number).children[1];
 
-			// bring chat forward
-			select(number);
+		// bring chat forward
+		select(number);
 
-			// load given message
-			if (message !== undefined)
-				write(container, number, message);
-		}
+		// load given message
+		if (message !== undefined && document.getElementById(message.sid) === null)
+			write(container, number, message);
 	}
 };
 
