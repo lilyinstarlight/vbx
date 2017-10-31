@@ -5,10 +5,10 @@ import vbx.flows
 
 # address to listen on
 addr = ('', 8080)
-wsocket = ('', 8081)
+wsocket = ('', 8081, '/socket')
 
 # path to websocket
-socket = 'ws://localhost:' + str(wsocket[1]) + '/socket'
+socket = 'ws://localhost:' + str(wsocket[1]) + websocket[2]
 
 # log locations
 log = '/var/log/vbx/vbx.log'

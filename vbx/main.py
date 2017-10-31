@@ -13,6 +13,8 @@ from vbx import config
 parser = argparse.ArgumentParser(description='serve up a vbx management system for Twilio')
 parser.add_argument('-a', '--address', dest='address', help='address to bind')
 parser.add_argument('-p', '--port', type=int, dest='port', help='port to bind')
+parser.add_argument('-s', '--socketport', dest='socketport', help='websocket port to bind')
+parser.add_argument('-p', '--socketpath', dest='socketpath', help='websocket path for connections')
 parser.add_argument('-r', '--resource', dest='resource', help='resource directory to use')
 parser.add_argument('-t', '--template', dest='template', help='template directory to use')
 parser.add_argument('-l', '--log', dest='log', help='log directory to use')
@@ -25,6 +27,12 @@ if args.address:
 
 if args.port:
     config.addr = (config.addr[0], args.port)
+
+if args.socketport:
+    config.wsocket = (args.address, args.socketport, config.wsocket[2])
+
+if args.socketpath:
+    config.wsocket = (config.addr[0], config.addr[1], args.socketpath)
 
 if args.resource:
     config.resource = args.resource
