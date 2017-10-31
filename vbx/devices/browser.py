@@ -75,13 +75,13 @@ class BrowserComponent:
                 yield from asyncio.sleep(self.timeout)
         except websockets.exceptions.ConnectionClosed:
             pass
-        finally:
+        except:
             yield from websocket.close()
 
-            with self.clients.get_lock():
-                self.clients.value -= 1
+        with self.clients.get_lock():
+            self.clients.value -= 1
 
-            self.websockets.remove(websocket)
+        self.websockets.remove(websocket)
 
     def online(self):
         return self.clients.value > 0

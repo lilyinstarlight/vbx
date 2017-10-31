@@ -154,38 +154,6 @@ var load = function() {
 		contacts.children[0].remove();
 	});
 
-	// load call and message history
-	xhr('get', '/calls/?to=' + my_number, undefined, function(calls) {
-		xhr('get', '/calls/?from=' + my_number, undefined, function(callsInner) {
-			xhr('get', '/msgs/?to=' + my_number, undefined, function(msgs) {
-				xhr('get', '/msgs/?from=' + my_number, undefined, function(msgsInner) {
-					// get all history elements
-					var entries = calls.concat(callsInner).concat(msgs).concat(msgsInner);
-
-					// filter out extra entries
-					entries = entries.filter(function(entry) {
-						return (entry.to !== 'client:vbx' && entry.from !== 'client:vbx') && (entry.direction === 'inbound' || entry.direction === 'outbound-api');
-					});
-
-					// sort by date
-					entries.sort(function(left, right) {
-						return new Date(left.date) - new Date(right.date);
-					});
-
-					// generate elements
-					entries.forEach(function(ev) {
-						save(ev);
-
-						if ('status' in ev)
-							start_call = ev.sid;
-						else
-							start_message = ev.sid;
-					});
-				});
-			});
-		});
-	});
-
 	// setup callbacks
 	xhr('get', '/browser', undefined, function(data) {
 		// get number
@@ -253,23 +221,55 @@ var load = function() {
 			});
 		});
 
-		// initiate socket updates
-		socket = new WebSocket(data.socket);
-		socket.addEventListener('open', function(ev) {
-			socket.send(start_call);
-			socket.send(start_message);
-		}, false);
-		socket.addEventListener('message', function(ev) {
-			var data = JSON.parse(ev.data);
-			window.save(data);
+		// load call and message history
+		xhr('get', '/calls/?to=' + my_number, undefined, function(calls) {
+			xhr('get', '/calls/?from=' + my_number, undefined, function(callsInner) {
+				xhr('get', '/msgs/?to=' + my_number, undefined, function(msgs) {
+					xhr('get', '/msgs/?from=' + my_number, undefined, function(msgsInner) {
+						// get all history elements
+						var entries = calls.concat(callsInner).concat(msgs).concat(msgsInner);
 
-			// check if message
-			if ('body' in data) {
-				// display message
-				window.notify((data.from in contact ? contact[data.from] : data.from) + ': ' + data.body);
-				window.open(data.from, message);
-			}
-		}, false);
+						// filter out extra entries
+						entries = entries.filter(function(entry) {
+							return (entry.to !== 'client:vbx' && entry.from !== 'client:vbx') && (entry.direction === 'inbound' || entry.direction === 'outbound-api');
+						});
+
+						// sort by date
+						entries.sort(function(left, right) {
+							return new Date(left.date) - new Date(right.date);
+						});
+
+						// generate elements
+						entries.forEach(function(ev) {
+							save(ev);
+
+							if ('status' in ev)
+								start_call = ev.sid;
+							else
+								start_message = ev.sid;
+						});
+
+						// initiate socket updates
+						socket = new WebSocket(data.socket);
+						socket.addEventListener('open', function(ev) {
+							socket.send(start_call);
+							socket.send(start_message);
+						}, false);
+						socket.addEventListener('message', function(ev) {
+							var data = JSON.parse(ev.data);
+							window.save(data);
+
+							// check if message
+							if ('body' in data) {
+								// display message
+								window.notify((data.from in contact ? contact[data.from] : data.from) + ': ' + data.body);
+								window.open(data.from, message);
+							}
+						}, false);
+					});
+				});
+			});
+		});
 	});
 
 	// select nothing
