@@ -27,6 +27,10 @@ var token = null;
 var connection = null;
 var incoming = null;
 
+var start = new Date();
+start.setDate(start.getDate() - 7);
+var after = start.toISOString();
+
 var xhr = function(method, resource, data, callback) {
 	var req = new XMLHttpRequest();
 
@@ -222,10 +226,10 @@ var load = function() {
 		});
 
 		// load call and message history
-		xhr('get', '/calls/?to=' + my_number, undefined, function(calls) {
-			xhr('get', '/calls/?from=' + my_number, undefined, function(callsInner) {
-				xhr('get', '/msgs/?to=' + my_number, undefined, function(msgs) {
-					xhr('get', '/msgs/?from=' + my_number, undefined, function(msgsInner) {
+		xhr('get', '/calls/?to=' + my_number + '&start_time_after=' + after, undefined, function(calls) {
+			xhr('get', '/calls/?from=' + my_number + '&start_time_after=' + after, undefined, function(callsInner) {
+				xhr('get', '/msgs/?to=' + my_number + '&date_sent_after=' + after, undefined, function(msgs) {
+					xhr('get', '/msgs/?from=' + my_number + '&date_sent_after=' + after, undefined, function(msgsInner) {
 						// get all history elements
 						var entries = calls.concat(callsInner).concat(msgs).concat(msgsInner);
 
@@ -250,22 +254,31 @@ var load = function() {
 						});
 
 						// initiate socket updates
-						socket = new WebSocket(data.socket);
-						socket.addEventListener('open', function(ev) {
-							socket.send(start_call);
-							socket.send(start_message);
-						}, false);
-						socket.addEventListener('message', function(ev) {
-							var data = JSON.parse(ev.data);
-							window.save(data);
+						var connect = function() {
+							socket = new WebSocket(data.socket);
+							socket.addEventListener('close', function(ev) {
+								setTimeout(connect, 5000);
+							}, false);
+							socket.addEventListener('open', function(ev) {
+								socket.send(start_call);
+								socket.send(start_message);
+							}, false);
+							socket.addEventListener('message', function(ev) {
+								var data = JSON.parse(ev.data);
+								window.save(data);
 
-							// check if message
-							if ('body' in data) {
-								// display message
-								window.notify((data.from in contact ? contact[data.from] : data.from) + ': ' + data.body);
-								window.open(data.from, message);
-							}
-						}, false);
+								// check if message
+								if ('body' in data) {
+									var other = data.from === my_number ? data.to : data.from;
+
+									// display message
+									window.notify((other in contact ? contact[other] : other) + ': ' + data.body);
+									window.open(other, data);
+								}
+							}, false);
+						};
+
+						connect();
 					});
 				});
 			});
@@ -424,11 +437,14 @@ var open = function(number, message) {
 		chat.classList.add('chat');
 		chat.style.display = 'none';
 
-		var pong = document.createElement('div');
+		var container = document.createElement('div');
+
+		var loader = document.createElement('div');
+		loader.classList.add('loader');
+
+		var pong = document.createElement('span');
 		pong.classList.add('pong-loader');
 		pong.innerText = 'Loading...';
-
-		var container = document.createElement('div');
 
 		var input = document.createElement('input');
 		input.type = 'text';
@@ -441,7 +457,9 @@ var open = function(number, message) {
 			}
 		});
 
-		chat.appendChild(pong);
+		loader.appendChild(pong);
+		container.appendChild(loader);
+
 		chat.appendChild(container);
 		chat.appendChild(input);
 
@@ -532,8 +550,8 @@ var open = function(number, message) {
 		select(number);
 
 		// load chat
-		xhr('get', '/msgs/?to=' + number + '&from=' + my_number, undefined, function(data) {
-			xhr('get', '/msgs/?from=' + number + '&to=' + my_number, undefined, function(dataInner) {
+		xhr('get', '/msgs/?to=' + number + '&from=' + my_number + '&date_sent_after=' + after, undefined, function(data) {
+			xhr('get', '/msgs/?from=' + number + '&to=' + my_number + '&date_sent_after=' + after, undefined, function(dataInner) {
 				// get all messages
 				var messages = data.concat(dataInner);
 
@@ -551,7 +569,7 @@ var open = function(number, message) {
 	}
 	else {
 		// get container
-		var container = document.getElementById(number).children[1];
+		var container = document.getElementById(number).children[0];
 
 		// bring chat forward
 		select(number);

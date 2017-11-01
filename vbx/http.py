@@ -84,7 +84,7 @@ class CallListHandler(ListHandler):
                 self.request.query['from_'] = self.request.query['from']
                 del self.request.query['from']
 
-            return 200, [vbx.util.call_encode(call) for call in client.calls.page(**self.request.query)]
+            return 200, [vbx.util.call_encode(call) for call in client.calls.list(**self.request.query)]
         except TypeError:
             raise fooster.web.HTTPError(400)
 
@@ -116,7 +116,7 @@ class MessageListHandler(ListHandler):
                 self.request.query['from_'] = self.request.query['from']
                 del self.request.query['from']
 
-            return 200, [vbx.util.message_encode(message) for message in client.messages.page(**self.request.query) if not message.error_code]
+            return 200, [vbx.util.message_encode(message) for message in client.messages.list(**self.request.query) if not message.error_code]
         except TypeError:
             raise fooster.web.HTTPError(400)
 

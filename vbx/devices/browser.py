@@ -1,9 +1,9 @@
 import asyncio
-import datetime
 import importlib
 import itertools
 import json
 import multiprocessing
+import time
 
 import twilio
 
@@ -38,45 +38,67 @@ class BrowserComponent:
         current_call = yield from websocket.recv()
         current_message = yield from websocket.recv()
 
+        current_status = {}
+
         with self.clients.get_lock():
             self.clients.value += 1
 
         try:
             while True:
-                last_call = None;
-                last_message = None;
+                last_call = None
+                wait_call = None
+                last_message = None
 
-                send = False
-                for call in itertools.chain(self.twilio_client.calls.page(to=self.vbx_config.number), self.twilio_client.calls.page(from_=self.vbx_config.number)):
-                    if send:
-                        last_call = call
-                        yield from asyncio.wait(ws.send(json.dumps(vbx.util.call_encode(call))) for ws in self.websockets)
+                events = sorted(list(itertools.chain(
+                    self.twilio_client.calls.page(from_=self.vbx_config.number),
+                    self.twilio_client.calls.page(to=self.vbx_config.number),
+                    self.twilio_client.messages.page(from_=self.vbx_config.number),
+                    self.twilio_client.messages.page(to=self.vbx_config.number))), key=lambda obj: obj.date_created)
 
-                    if call.sid == current_call:
-                        send = True
+                send_call = False
+                send_message = False
+                for event in events:
+                    if event.sid[:2] == 'CA':
+                        if not send_call:
+                            if event.sid == current_call:
+                                send_call = True
 
-                send = False
-                for message in itertools.chain(self.twilio_client.messages.page(to=self.vbx_config.number), self.twilio_client.messages.page(from_=self.vbx_config.number)):
-                    if send:
-                        if not message.error_code:
-                            last_message = message
-                            yield from asyncio.wait(ws.send(json.dumps(vbx.util.message_encode(message))) for ws in self.websockets)
+                            continue
 
-                    if message.sid == current_message:
-                        send = True
+                        if not wait_call and (event.status == 'queued' or event.status == 'ringing' or event.status == 'in-progress'):
+                            wait_call = event.sid
 
-                if last_call:
-                    current_call = last_call.sid
+                        last_call = event.sid
 
-                if last_message:
-                    current_message = last_message.sid
+                        yield from asyncio.wait([ws.send(json.dumps(vbx.util.call_encode(event))) for ws in self.websockets])
+                    elif event.sid[:2] == 'SM' or event.sid[:2] == 'MM':
+                        if not send_message:
+                            if event.sid == current_message:
+                                send_message = True
+
+                            continue
+
+                        last_message = event.sid
+
+                        if not event.error_code:
+                            yield from asyncio.wait([ws.send(json.dumps(vbx.util.message_encode(event))) for ws in self.websockets])
+
+                    current_call = wait_call if wait_call else last_call
+                    current_message = last_message
 
                 yield from websocket.ping()
                 yield from asyncio.sleep(self.timeout)
         except websockets.exceptions.ConnectionClosed:
             pass
+        except ConnectionError:
+            pass
         except:
-            yield from websocket.close()
+            try:
+                yield from websocket.close()
+            except websockets.exceptions.ConnectionClosed:
+                pass
+
+            raise
 
         with self.clients.get_lock():
             self.clients.value -= 1
