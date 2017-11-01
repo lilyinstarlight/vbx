@@ -44,7 +44,7 @@ class XMPPComponent(slixmpp.ComponentXMPP):
 
         self.connect()
 
-        self.process()
+        self.process(forever=True)
 
 
     def session_start(self, data):
