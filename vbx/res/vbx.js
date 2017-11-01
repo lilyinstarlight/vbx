@@ -420,7 +420,14 @@ var save = function(ev) {
 		update(data);
 
 		// scroll history down
-		container.scrollTop = 2147483646;
+		if (container.style.display === '') {
+			container.scrollTop = 2147483646;
+		}
+		else {
+			container.style.display = 'block';
+			container.scrollTop = 2147483646;
+			container.style.display = 'none';
+		}
 	};
 
 	if (document.getElementById('history_' + ev.sid) === null)
