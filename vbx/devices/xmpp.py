@@ -23,7 +23,7 @@ class XMPPComponent(slixmpp.ComponentXMPP):
 
         self.vbx_config = None
 
-        self.target_online = False
+        self.target_online = multiprocessing.Value('B')
 
         super().__init__(jid, secret, server, port)
 
@@ -62,13 +62,13 @@ class XMPPComponent(slixmpp.ComponentXMPP):
         if presence['from'].bare != self.target:
             return
 
-        self.target_online = False
+        self.target_online.value = 0
 
     def set_online(self, presence):
         if presence['from'].bare != self.target:
             return
 
-        self.target_online = True
+        self.target_online.value = 1
 
         for number, name in self.vbx_config.contacts.items():
             self.send_presence(pto=self.target, pfrom=number + '@' + self.boundjid.domain, pnick=name, ptype='available')
@@ -98,14 +98,17 @@ class XMPPComponent(slixmpp.ComponentXMPP):
         if event.media_url:
             self.send_message(self.target, 'Media: ' + event.media_url, mfrom=from_)
 
-    def send_from_twilio(self, event, msg):
-        self.twilio_queue.put((event, msg))
-
     def check_twilio(self):
         try:
             self._send_from_twilio(*self.twilio_queue.get_nowait())
         except queue.Empty:
             pass
+
+    def send_from_twilio(self, event, msg):
+        self.twilio_queue.put((event, msg))
+
+    def online(self):
+        return self.target_online.value > 0
 
 
 class XMPP(vbx.Device):
@@ -117,7 +120,7 @@ class XMPP(vbx.Device):
         self.process.start()
 
     def online(self):
-        return self.component.target_online
+        return self.component.online()
 
     def send(self, event, message, response):
         self.component.send_from_twilio(event, message)
