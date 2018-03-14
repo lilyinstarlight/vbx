@@ -40,7 +40,7 @@ class BrowserComponent:
         key = yield from websocket.recv()
 
         with self.key.get_lock():
-            if not self.key.value or key != self.key.value:
+            if not self.key.value.decode('ascii') or key != self.key.value.decode('ascii'):
                 return
 
             self.key = ''
@@ -119,9 +119,9 @@ class BrowserComponent:
 
     def gen(self):
         with self.key.get_lock():
-            self.key.value = ''.join(random.choice(string.ascii_letters) for _ in range(16)).encode('utf-8')
+            self.key.value = ''.join(random.choice(string.ascii_letters) for _ in range(16)).encode('ascii')
 
-            return self.key.value
+            return self.key.value.decode('ascii')
 
     def online(self):
         return self.clients.value > 0
