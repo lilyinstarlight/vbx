@@ -19,6 +19,7 @@ class BrowserComponent:
 
         self.clients = multiprocessing.Value('B')
 
+        self.key = None
         self.websockets = []
 
     def start(self):
@@ -33,6 +34,12 @@ class BrowserComponent:
 
     @asyncio.coroutine
     def serve(self, websocket, path):
+        key = yield from websocket.recv()
+
+        if not self.key or key != self.key:
+            return
+
+        self.key = None
         self.websockets.append(websocket)
 
         current_call = yield from websocket.recv()
@@ -104,6 +111,11 @@ class BrowserComponent:
             self.clients.value -= 1
 
         self.websockets.remove(websocket)
+
+    def gen():
+        self.key = ''.join(random.choice(string.ascii_letters) for _ in range(16))
+
+        return self.key
 
     def online(self):
         return self.clients.value > 0

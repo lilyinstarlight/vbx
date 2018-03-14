@@ -215,14 +215,17 @@ var load = function() {
 		});
 
 		Twilio.Device.offline(function(device) {
-			// get another token
-			xhr('get', '/browser', undefined, function(data) {
-				// get token
-				token = data.token;
+			// try again in a few
+			setTimeout(function() {
+				// get another token
+				xhr('get', '/browser', undefined, function(data) {
+					// get token
+					token = data.token;
 
-				// setup Twilio.Device
-				Twilio.Device.setup(token);
-			});
+					// setup Twilio.Device
+					Twilio.Device.setup(token);
+				});
+			}, 5000);
 		});
 
 		// load call and message history
@@ -254,12 +257,22 @@ var load = function() {
 						});
 
 						// initiate socket updates
-						var connect = function() {
+						var connect = function(data) {
 							socket = new WebSocket(data.socket);
 							socket.addEventListener('close', function(ev) {
-								setTimeout(connect, 5000);
+								// try again in a few
+								setTimeout(function() {
+									// get another key
+									xhr('get', '/browser', undefined, function(data) {
+										connect(data);
+									});
+								}, 5000);
 							}, false);
 							socket.addEventListener('open', function(ev) {
+								// send secret key
+								socket.send(data.key);
+
+								// send latest data
 								socket.send(start_call);
 								socket.send(start_message);
 							}, false);
@@ -278,7 +291,7 @@ var load = function() {
 							}, false);
 						};
 
-						connect();
+						connect(data);
 					});
 				});
 			});
