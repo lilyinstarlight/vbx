@@ -112,7 +112,7 @@ class BrowserComponent:
 
         self.websockets.remove(websocket)
 
-    def gen():
+    def gen(self):
         self.key = ''.join(random.choice(string.ascii_letters) for _ in range(16))
 
         return self.key
