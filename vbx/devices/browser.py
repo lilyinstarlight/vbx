@@ -1,4 +1,5 @@
 import asyncio
+import ctypes
 import importlib
 import itertools
 import json
@@ -19,9 +20,9 @@ class BrowserComponent:
     def __init__(self, timeout=0.5):
         self.timeout = timeout
 
-        self.clients = multiprocessing.Value('B')
+        self.clients = multiprocessing.Value(ctypes.c_ubyte)
+        self.key = multiprocessing.Array(ctypes.c_char, 17)
 
-        self.key = None
         self.websockets = []
 
     def start(self):
@@ -38,10 +39,12 @@ class BrowserComponent:
     def serve(self, websocket, path):
         key = yield from websocket.recv()
 
-        if not self.key or key != self.key:
-            return
+        with self.key.get_lock():
+            if not self.key.value or key != self.key.value:
+                return
 
-        self.key = None
+            self.key = ''
+
         self.websockets.append(websocket)
 
         current_call = yield from websocket.recv()
@@ -115,9 +118,10 @@ class BrowserComponent:
         self.websockets.remove(websocket)
 
     def gen(self):
-        self.key = ''.join(random.choice(string.ascii_letters) for _ in range(16))
+        with self.key.get_lock():
+            self.key.value = ''.join(random.choice(string.ascii_letters) for _ in range(16)).encode('utf-8')
 
-        return self.key
+            return self.key.value
 
     def online(self):
         return self.clients.value > 0
