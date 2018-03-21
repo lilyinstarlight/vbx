@@ -23,6 +23,9 @@ class BrowserComponent:
         self.clients = multiprocessing.Value(ctypes.c_ubyte)
         self.key = multiprocessing.Array(ctypes.c_char, 17)
 
+        self.clients.value = 0
+        self.key.value = b''
+
         self.websockets = []
 
     def start(self):
@@ -43,7 +46,7 @@ class BrowserComponent:
             if not self.key.value.decode('ascii') or key != self.key.value.decode('ascii'):
                 return
 
-            self.key = ''
+            self.key.value = b''
 
         self.websockets.append(websocket)
 
