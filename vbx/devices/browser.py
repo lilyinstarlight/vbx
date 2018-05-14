@@ -114,11 +114,11 @@ class BrowserComponent:
                 pass
 
             raise
+        finally:
+            with self.clients.get_lock():
+                self.clients.value -= 1
 
-        with self.clients.get_lock():
-            self.clients.value -= 1
-
-        self.websockets.remove(websocket)
+            self.websockets.remove(websocket)
 
     def gen(self):
         with self.key.get_lock():
