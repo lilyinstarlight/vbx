@@ -17,8 +17,8 @@ import vbx.devices.browser
 import vbx.util
 
 
-alias = '([a-zA-Z0-9._-]+)'
-query = '(?:\?([\w=&+.:%-]*))?'
+alias = '(?P<alias>[a-zA-Z0-9._-]+)'
+query = '(?:\?(?P<query>[\w=&+.:%-]*))?'
 
 http = None
 
@@ -72,7 +72,7 @@ class ContactListHandler(AccountHandler):
 class ContactHandler(AccountHandler):
     def do_get(self):
         try:
-            return 200, vbx.config.contacts[self.groups[0]]
+            return 200, vbx.config.contacts[self.groups['alias']]
         except KeyError:
             raise fooster.web.HTTPError(404)
 
@@ -92,7 +92,7 @@ class CallListHandler(ListHandler):
 class CallHandler(AccountHandler):
     def do_get(self):
         try:
-            call = client.calls.get(self.groups[0])
+            call = client.calls.get(self.groups['alias'])
 
             return 200, vbx.util.call_encode(call.fetch())
         except:
@@ -100,7 +100,7 @@ class CallHandler(AccountHandler):
 
     def do_delete(self):
         try:
-            call = client.calls.get(self.groups[0])
+            call = client.calls.get(self.groups['alias'])
 
             call.delete()
 
@@ -124,7 +124,7 @@ class MessageListHandler(ListHandler):
 class MessageHandler(AccountHandler):
     def do_get(self):
         try:
-            message = client.messages.get(self.groups[0])
+            message = client.messages.get(self.groups['alias'])
 
             return 200, vbx.util.message_encode(message.fetch())
         except:
@@ -132,7 +132,7 @@ class MessageHandler(AccountHandler):
 
     def do_delete(self):
         try:
-            message = client.message.get(self.groups[0])
+            message = client.message.get(self.groups['alias'])
 
             message.delete()
 
@@ -151,7 +151,7 @@ class CallFlowHandler(FlowHandler):
 
         try:
             self.response.headers['Content-Type'] = 'text/xml'
-            return 200, str(self.event.handle(vbx.config.calls[self.groups[0]]))
+            return 200, str(self.event.handle(vbx.config.calls[self.groups['alias']]))
         except ValueError:
             raise fooster.web.HTTPError(400)
         except IndexError:
@@ -164,7 +164,7 @@ class MessageFlowHandler(FlowHandler):
 
         try:
             self.response.headers['Content-Type'] = 'text/xml'
-            return 200, str(self.event.handle(vbx.config.messages[self.groups[0]]))
+            return 200, str(self.event.handle(vbx.config.messages[self.groups['alias']]))
         except ValueError:
             raise fooster.web.HTTPError(400)
         except IndexError:
