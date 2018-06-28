@@ -28,6 +28,7 @@ var connection = null;
 var incoming = null;
 
 var start = new Date();
+var before = start.toISOString();
 start.setDate(start.getDate() - 7);
 var after = start.toISOString();
 
@@ -38,7 +39,7 @@ var xhr = function(method, resource, data, callback) {
 
 	req.addEventListener('load', function(ev) {
 		callback === undefined || callback(req.response);
-	});
+	}, false);
 
 	req.open(method, resource);
 	if (data === undefined) {
@@ -130,10 +131,10 @@ var load = function() {
 
 			button_message.addEventListener('click', function(ev) {
 				window.open(key);
-			});
+			}, false);
 			button_call.addEventListener('click', function(ev) {
 				window.call(key);
-			});
+			}, false);
 
 			var tr = document.createElement('tr');
 
@@ -401,10 +402,10 @@ var save = function(ev) {
 
 		button_message.addEventListener('click', function(ev) {
 			window.open(number);
-		});
+		}, false);
 		button_call.addEventListener('click', function(ev) {
 			window.call(number);
-		});
+		}, false);
 
 		var tr = document.createElement('tr');
 
@@ -434,11 +435,11 @@ var save = function(ev) {
 
 		// scroll history down
 		if (container.style.display === '') {
-			container.scrollTop = 2147483646;
+			container.scrollTop = container.scrollHeight - container.clientHeight;
 		}
 		else {
 			container.style.display = 'block';
-			container.scrollTop = 2147483646;
+			container.scrollTop = container.scrollHeight - container.clientHeight;
 			container.style.display = 'none';
 		}
 	};
@@ -450,70 +451,7 @@ var save = function(ev) {
 };
 
 var open = function(number, message) {
-	var show = function(number) {
-		// create new chat block
-		var chat = document.createElement('div');
-		chat.id = number;
-		chat.classList.add('chat');
-		chat.style.display = 'none';
-
-		var container = document.createElement('div');
-
-		var loader = document.createElement('div');
-		loader.classList.add('loader');
-
-		var pong = document.createElement('span');
-		pong.classList.add('pong-loader');
-		pong.innerText = 'Loading...';
-
-		var input = document.createElement('input');
-		input.type = 'text';
-		input.placeholder = 'Enter Message Here...';
-		input.addEventListener('keyup', function(ev) {
-			if (ev.keyCode === 13) {
-				ev.preventDefault();
-				xhr('post', '/msg', {'to': number, 'body': input.value});
-				input.value = '';
-			}
-		});
-
-		loader.appendChild(pong);
-		container.appendChild(loader);
-
-		chat.appendChild(container);
-		chat.appendChild(input);
-
-		main.appendChild(chat);
-		conversations.push(chat);
-
-		// create button
-		var button_container = document.createElement('div');
-		button_container.id = 'nav_' + number;
-
-		var button = document.createElement('button');
-		button.id = 'button_' + number;
-		if (number in contact)
-			button.innerText = contact[number];
-		else
-			button.innerText = number;
-		button.addEventListener('click', function(ev) { window.select(number) });
-
-		buttons.push(button);
-
-		var close = document.createElement('button');
-		close.classList.add('close');
-		close.innerText = '×';
-		close.addEventListener('click', function(ev) { window.close(number) });
-
-		button_container.appendChild(button);
-		button_container.appendChild(close);
-
-		nav.insertBefore(button_container, nav.firstChild);
-
-		return container;
-	}
-
-	var write = function(container, number, message) {
+	var write = function(container, number, message, prepend) {
 		// create chat bubble
 		var div = document.createElement('div');
 		div.id = message.sid;
@@ -549,25 +487,102 @@ var open = function(number, message) {
 				embed.style.height = 'initial';
 
 				// scroll chat down
-				container.scrollTop = 2147483646;
-			});
+				container.scrollTop = container.scrollHeight - container.clientHeight;
+			}, false);
 
 			div.appendChild(embed);
 		}
 
 		// add message to chat window
-		container.appendChild(div);
+		container.insertChild(0, div);
 
 		// scroll chat down
-		container.scrollTop = 2147483646;
+		container.scrollTop = container.scrollHeight - container.clientHeight;
 	}
 
-	if (document.getElementById(number) === null) {
-		// show number
-		var container = show(number);
+	var show = function(number) {
+		// create new chat block
+		var chat = document.createElement('div');
+		chat.id = number;
+		chat.classList.add('chat');
+		chat.style.display = 'none';
+		chat.addEventListener('scroll', function(ev) {
+			if (chat.scrollTop < chat.clientHeight) {
+				before = start.toISOString();
+				start.setDate(start.getDate() - 7);
+				after = start.toISOString();
 
-		// bring chat forward
-		select(number);
+				xhr('get', '/msgs/?to=' + number + '&from=' + my_number + '&date_sent_after=' + after + '&date_sent_before=' + before, undefined, function(data) {
+					xhr('get', '/msgs/?from=' + number + '&to=' + my_number + '&date_sent_after=' + after + '&date_sent_before=' + before, undefined, function(dataInner) {
+						// get all messages
+						var messages = data.concat(dataInner);
+
+						// sort by date
+						messages.sort(function(left, right) {
+							return new Date(right.date) - new Date(left.date);
+						});
+
+						// generate elements
+						messages.forEach(function(message) {
+							write(container, number, message, true);
+						});
+					});
+				});
+			}
+		}, false);
+
+		var container = document.createElement('div');
+
+		var loader = document.createElement('div');
+		loader.classList.add('loader');
+
+		var pong = document.createElement('span');
+		pong.classList.add('pong-loader');
+		pong.innerText = 'Loading...';
+
+		var input = document.createElement('input');
+		input.type = 'text';
+		input.placeholder = 'Enter Message Here...';
+		input.addEventListener('keyup', function(ev) {
+			if (ev.keyCode === 13) {
+				ev.preventDefault();
+				xhr('post', '/msg', {'to': number, 'body': input.value});
+				input.value = '';
+			}
+		}, false);
+
+		loader.appendChild(pong);
+		container.appendChild(loader);
+
+		chat.appendChild(container);
+		chat.appendChild(input);
+
+		main.appendChild(chat);
+		conversations.push(chat);
+
+		// create button
+		var button_container = document.createElement('div');
+		button_container.id = 'nav_' + number;
+
+		var button = document.createElement('button');
+		button.id = 'button_' + number;
+		if (number in contact)
+			button.innerText = contact[number];
+		else
+			button.innerText = number;
+		button.addEventListener('click', function(ev) { window.select(number) }, false);
+
+		buttons.push(button);
+
+		var close = document.createElement('button');
+		close.classList.add('close');
+		close.innerText = '×';
+		close.addEventListener('click', function(ev) { window.close(number) }, false);
+
+		button_container.appendChild(button);
+		button_container.appendChild(close);
+
+		nav.insertBefore(button_container, nav.firstChild);
 
 		// load chat
 		xhr('get', '/msgs/?to=' + number + '&from=' + my_number + '&date_sent_after=' + after, undefined, function(data) {
@@ -582,10 +597,20 @@ var open = function(number, message) {
 
 				// generate elements
 				messages.forEach(function(message) {
-					write(container, number, message);
+					write(container, number, message, false);
 				});
 			});
 		});
+
+		return container;
+	}
+
+	if (document.getElementById(number) === null) {
+		// show number
+		var container = show(number);
+
+		// bring chat forward
+		select(number);
 	}
 	else {
 		// get container
@@ -596,7 +621,7 @@ var open = function(number, message) {
 
 		// load given message
 		if (message !== undefined && document.getElementById(message.sid) === null)
-			write(container, number, message);
+			write(container, number, message, false);
 	}
 };
 
@@ -781,5 +806,5 @@ var select = function(id) {
 		record.focus();
 };
 
-window.addEventListener('load', load);
-window.addEventListener('focus', clear);
+window.addEventListener('load', load, false);
+window.addEventListener('focus', clear, false);
