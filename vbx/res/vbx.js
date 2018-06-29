@@ -31,6 +31,7 @@ var start = new Date();
 var before = start.toISOString();
 start.setDate(start.getDate() - 7);
 var after = start.toISOString();
+var scrolling = false;
 
 var xhr = function(method, resource, data, callback) {
 	var req = new XMLHttpRequest();
@@ -487,20 +488,30 @@ var open = function(number, message) {
 				embed.style.height = 'initial';
 
 				// scroll chat down
-				container.scrollTop = container.scrollHeight - container.clientHeight;
+				if (!prepend)
+					container.scrollTop = container.scrollHeight - container.clientHeight;
 			}, false);
 
 			div.appendChild(embed);
 		}
 
-		// add message to chat window
-		if (prepend)
-			container.insertBefore(div, container.childNodes[0]);
-		else
+		if (prepend) {
+			// save scroll position
+			var scroll = container.scrollTop;
+
+			// add message to chat window
+			container.insertBefore(div, container.childNodes[1]);
+
+			// scroll chat down some
+			container.scrollTop = scroll + div.clientHeight;
+		}
+		else {
+			// add message to chat window
 			container.appendChild(div);
 
-		// scroll chat down
-		container.scrollTop = container.scrollHeight - container.clientHeight;
+			// scroll chat down
+			container.scrollTop = container.scrollHeight - container.clientHeight;
+		}
 	}
 
 	var show = function(number) {
@@ -509,8 +520,12 @@ var open = function(number, message) {
 		chat.id = number;
 		chat.classList.add('chat');
 		chat.style.display = 'none';
-		chat.addEventListener('scroll', function(ev) {
-			if (chat.scrollTop < chat.clientHeight) {
+
+		var container = document.createElement('div');
+		container.addEventListener('scroll', function(ev) {
+			if (!scrolling && container.scrollTop < container.clientHeight) {
+				scrolling = true;
+
 				before = start.toISOString();
 				start.setDate(start.getDate() - 7);
 				after = start.toISOString();
@@ -529,12 +544,12 @@ var open = function(number, message) {
 						messages.forEach(function(message) {
 							write(container, number, message, true);
 						});
+
+						scrolling = false;
 					});
 				});
 			}
 		}, false);
-
-		var container = document.createElement('div');
 
 		var loader = document.createElement('div');
 		loader.classList.add('loader');
