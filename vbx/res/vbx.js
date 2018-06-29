@@ -494,7 +494,10 @@ var open = function(number, message) {
 		}
 
 		// add message to chat window
-		container.insertChild(0, div);
+		if (prepend)
+			container.insertBefore(div, container.childNodes[0]);
+		else
+			container.appendChild(div);
 
 		// scroll chat down
 		container.scrollTop = container.scrollHeight - container.clientHeight;

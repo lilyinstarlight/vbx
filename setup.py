@@ -42,5 +42,5 @@ setup(
     install_requires=['fooster-web', 'twilio', 'slixmpp', 'websockets'],
     packages=find_packages(),
     package_data={'': ['html/*.*', 'res/*.*']},
-    entry_points = {'console_scripts': ['vbx = vbx.main']},
+    entry_points = {'console_scripts': ['vbx = vbx.__main__:main']},
 )
