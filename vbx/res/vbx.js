@@ -497,13 +497,13 @@ var open = function(number, message) {
 
 		if (prepend) {
 			// save scroll position
-			var scroll = container.scrollTop;
+			var scroll = container.scrollHeight;
 
 			// add message to chat window
 			container.insertBefore(div, container.childNodes[1]);
 
 			// scroll chat down some
-			container.scrollTop = scroll + div.clientHeight;
+			container.scrollTop += container.scrollHeight - scroll;
 		}
 		else {
 			// add message to chat window
@@ -546,6 +546,9 @@ var open = function(number, message) {
 						});
 
 						scrolling = false;
+
+						if (container.scrollTop < container.clientHeight)
+							container.dispatchEvent(new Event('scroll'));
 					});
 				});
 			}
@@ -617,6 +620,9 @@ var open = function(number, message) {
 				messages.forEach(function(message) {
 					write(container, number, message, false);
 				});
+
+				if (container.scrollTop < container.clientHeight)
+					container.dispatchEvent(new Event('scroll'));
 			});
 		});
 
