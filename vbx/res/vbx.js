@@ -477,6 +477,8 @@ var open = function(number, message) {
 
 		// add media if necessary
 		if (message.media_url !== null) {
+			var scroll = container.scrollHeight;
+
 			var embed = document.createElement('embed');
 			embed.src = message.media_url;
 			embed.type = message.media_type;
@@ -488,7 +490,9 @@ var open = function(number, message) {
 				embed.style.height = 'initial';
 
 				// scroll chat down
-				if (!prepend)
+				if (prepend)
+					container.scrollTop += container.scrollHeight - scroll;
+				else
 					container.scrollTop = container.scrollHeight - container.clientHeight;
 			}, false);
 
