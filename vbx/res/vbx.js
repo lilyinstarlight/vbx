@@ -230,7 +230,7 @@ var load = function() {
 
 		// load call and message history
 		record.addEventListener('scroll', function(ev) {
-			if (!scrolling && container.scrollTop < container.clientHeight) {
+			if (!scrolling && record.scrollTop <= record.clientHeight) {
 				scrolling = true;
 
 				// store start and end dates for update
@@ -240,8 +240,8 @@ var load = function() {
 
 				xhr('get', '/calls/?to=' + my_number + '&start_time_after=' + after + '&start_time_before=' + before, undefined, function(calls) {
 					xhr('get', '/calls/?from=' + my_number + '&start_time_after=' + after + '&start_time_before=' + before, undefined, function(callsInner) {
-						xhr('get', '/msgs/?to=' + my_number + '&date_sent_after=' + after + '&start_time_before=' + before, undefined, function(msgs) {
-							xhr('get', '/msgs/?from=' + my_number + '&date_sent_after=' + after + '&start_time_before=' + before, undefined, function(msgsInner) {
+						xhr('get', '/msgs/?to=' + my_number + '&date_sent_after=' + after + '&date_sent_before=' + before, undefined, function(msgs) {
+							xhr('get', '/msgs/?from=' + my_number + '&date_sent_after=' + after + '&date_sent_before=' + before, undefined, function(msgsInner) {
 								// get all history elements
 								var entries = calls.concat(callsInner).concat(msgs).concat(msgsInner);
 
@@ -267,7 +267,7 @@ var load = function() {
 
 								scrolling = false;
 
-								if (record.scrollTop < record.clientHeight)
+								if (record.scrollTop <= record.clientHeight)
 									record.dispatchEvent(new Event('scroll'));
 							});
 						});
@@ -451,7 +451,7 @@ var save = function(ev, prepend) {
 			if (tbody.childNodes.length === 1)
 				tbody.appendChild(tr);
 			else
-				tbody.insertBefore(tr, container.childNodes[1]);
+				tbody.insertBefore(tr, tbody.childNodes[1]);
 		}
 		else {
 			tbody.appendChild(tr);
@@ -558,7 +558,7 @@ var open = function(number, message) {
 
 		var container = document.createElement('div');
 		container.addEventListener('scroll', function(ev) {
-			if (!scrolling && container.scrollTop < container.clientHeight) {
+			if (!scrolling && container.scrollTop <= container.clientHeight) {
 				scrolling = true;
 
 				// store start and end dates for update
@@ -583,7 +583,7 @@ var open = function(number, message) {
 
 						scrolling = false;
 
-						if (container.scrollTop < container.clientHeight)
+						if (container.scrollTop <= container.clientHeight)
 							container.dispatchEvent(new Event('scroll'));
 					});
 				});
