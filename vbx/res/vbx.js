@@ -27,10 +27,8 @@ var token = null;
 var connection = null;
 var incoming = null;
 
-var start = new Date();
-var before = start.toISOString();
-start.setDate(start.getDate() - 7);
-var after = start.toISOString();
+var start = {'history': new Date()};
+
 var scrolling = false;
 
 var xhr = function(method, resource, data, callback) {
@@ -231,73 +229,92 @@ var load = function() {
 		});
 
 		// load call and message history
-		xhr('get', '/calls/?to=' + my_number + '&start_time_after=' + after, undefined, function(calls) {
-			xhr('get', '/calls/?from=' + my_number + '&start_time_after=' + after, undefined, function(callsInner) {
-				xhr('get', '/msgs/?to=' + my_number + '&date_sent_after=' + after, undefined, function(msgs) {
-					xhr('get', '/msgs/?from=' + my_number + '&date_sent_after=' + after, undefined, function(msgsInner) {
-						// get all history elements
-						var entries = calls.concat(callsInner).concat(msgs).concat(msgsInner);
+		record.addEventListener('scroll', function(ev) {
+			if (!scrolling && container.scrollTop < container.clientHeight) {
+				scrolling = true;
 
-						// filter out extra entries
-						entries = entries.filter(function(entry) {
-							return (entry.to !== 'client:vbx' && entry.from !== 'client:vbx') && (entry.direction === 'inbound' || entry.direction === 'outbound-api');
+				// store start and end dates for update
+				before = start['history'].toISOString();
+				start['history'].setDate(start['history'].getDate() - 7);
+				after = start['history'].toISOString();
+
+				xhr('get', '/calls/?to=' + my_number + '&start_time_after=' + after + '&start_time_before=' + before, undefined, function(calls) {
+					xhr('get', '/calls/?from=' + my_number + '&start_time_after=' + after + '&start_time_before=' + before, undefined, function(callsInner) {
+						xhr('get', '/msgs/?to=' + my_number + '&date_sent_after=' + after + '&start_time_before=' + before, undefined, function(msgs) {
+							xhr('get', '/msgs/?from=' + my_number + '&date_sent_after=' + after + '&start_time_before=' + before, undefined, function(msgsInner) {
+								// get all history elements
+								var entries = calls.concat(callsInner).concat(msgs).concat(msgsInner);
+
+								// filter out extra entries
+								entries = entries.filter(function(entry) {
+									return (entry.to !== 'client:vbx' && entry.from !== 'client:vbx') && (entry.direction === 'inbound' || entry.direction === 'outbound-api');
+								});
+
+								// sort by date
+								entries.sort(function(left, right) {
+									return new Date(right.date) - new Date(left.date);
+								});
+
+								// generate elements
+								entries.forEach(function(ev) {
+									window.save(ev, true);
+
+									if ('status' in ev)
+										start_call = ev.sid;
+									else
+										start_message = ev.sid;
+								});
+
+								scrolling = false;
+
+								if (record.scrollTop < record.clientHeight)
+									record.dispatchEvent(new Event('scroll'));
+							});
 						});
-
-						// sort by date
-						entries.sort(function(left, right) {
-							return new Date(left.date) - new Date(right.date);
-						});
-
-						// generate elements
-						entries.forEach(function(ev) {
-							save(ev);
-
-							if ('status' in ev)
-								start_call = ev.sid;
-							else
-								start_message = ev.sid;
-						});
-
-						// initiate socket updates
-						var connect = function(data) {
-							socket = new WebSocket(data.socket);
-							socket.addEventListener('close', function(ev) {
-								// try again in a few
-								setTimeout(function() {
-									// get another key
-									xhr('get', '/browser', undefined, function(data) {
-										connect(data);
-									});
-								}, 5000);
-							}, false);
-							socket.addEventListener('open', function(ev) {
-								// send secret key
-								socket.send(data.key);
-
-								// send latest data
-								socket.send(start_call);
-								socket.send(start_message);
-							}, false);
-							socket.addEventListener('message', function(ev) {
-								var data = JSON.parse(ev.data);
-								window.save(data);
-
-								// check if message
-								if ('body' in data) {
-									var other = data.from === my_number ? data.to : data.from;
-
-									// display message
-									window.notify((data.from in contact ? contact[data.from] : data.from) + ': ' + data.body);
-									window.open(other, data);
-								}
-							}, false);
-						};
-
-						connect(data);
 					});
 				});
-			});
-		});
+			}
+		}, false);
+
+		// load history
+		record.dispatchEvent(new Event('scroll'));
+
+		// initiate socket updates
+		var connect = function(data) {
+			socket = new WebSocket(data.socket);
+			socket.addEventListener('close', function(ev) {
+				// try again in a few
+				setTimeout(function() {
+					// get another key
+					xhr('get', '/browser', undefined, function(data) {
+						connect(data);
+					});
+				}, 5000);
+			}, false);
+			socket.addEventListener('open', function(ev) {
+				// send secret key
+				socket.send(data.key);
+
+				// send latest data
+				socket.send(start_call);
+				socket.send(start_message);
+			}, false);
+			socket.addEventListener('message', function(ev) {
+				var data = JSON.parse(ev.data);
+				window.save(data);
+
+				// check if message
+				if ('body' in data) {
+					var other = data.from === my_number ? data.to : data.from;
+
+					// display message
+					window.notify((data.from in contact ? contact[data.from] : data.from) + ': ' + data.body);
+					window.open(other, data);
+				}
+			}, false);
+		};
+
+		connect(data);
 	});
 
 	// select nothing
@@ -320,7 +337,7 @@ var load = function() {
 	document.head.appendChild(scrollfix);
 };
 
-var save = function(ev) {
+var save = function(ev, prepend) {
 	var update = function(data) {
 		var span = document.getElementById('history_' + data.sid).children[1].children[0];
 
@@ -430,7 +447,15 @@ var save = function(ev) {
 		tr.appendChild(td_message);
 		tr.appendChild(td_call);
 
-		tbody.appendChild(tr);
+		if (prepend) {
+			if (tbody.childNodes.length === 1)
+				tbody.appendChild(tr);
+			else
+				tbody.insertBefore(tr, container.childNodes[1]);
+		}
+		else {
+			tbody.appendChild(tr);
+		}
 
 		update(data);
 
@@ -504,7 +529,10 @@ var open = function(number, message) {
 			var scroll = container.scrollHeight;
 
 			// add message to chat window
-			container.insertBefore(div, container.childNodes[1]);
+			if (container.childNodes.length === 1)
+				container.appendChild(div);
+			else
+				container.insertBefore(div, container.childNodes[1]);
 
 			// scroll chat down some
 			container.scrollTop += container.scrollHeight - scroll;
@@ -519,6 +547,9 @@ var open = function(number, message) {
 	}
 
 	var show = function(number) {
+		// save new date to number
+		start[number] = new Date();
+
 		// create new chat block
 		var chat = document.createElement('div');
 		chat.id = number;
@@ -530,9 +561,10 @@ var open = function(number, message) {
 			if (!scrolling && container.scrollTop < container.clientHeight) {
 				scrolling = true;
 
-				before = start.toISOString();
-				start.setDate(start.getDate() - 7);
-				after = start.toISOString();
+				// store start and end dates for update
+				before = start[number].toISOString();
+				start[number].setDate(start[number].getDate() - 7);
+				after = start[number].toISOString();
 
 				xhr('get', '/msgs/?to=' + number + '&from=' + my_number + '&date_sent_after=' + after + '&date_sent_before=' + before, undefined, function(data) {
 					xhr('get', '/msgs/?from=' + number + '&to=' + my_number + '&date_sent_after=' + after + '&date_sent_before=' + before, undefined, function(dataInner) {
@@ -595,14 +627,14 @@ var open = function(number, message) {
 			button.innerText = contact[number];
 		else
 			button.innerText = number;
-		button.addEventListener('click', function(ev) { window.select(number) }, false);
+		button.addEventListener('click', function(ev) { window.select(number); }, false);
 
 		buttons.push(button);
 
 		var close = document.createElement('button');
 		close.classList.add('close');
 		close.innerText = '×';
-		close.addEventListener('click', function(ev) { window.close(number) }, false);
+		close.addEventListener('click', function(ev) { window.close(number); delete start[number] }, false);
 
 		button_container.appendChild(button);
 		button_container.appendChild(close);
@@ -610,25 +642,7 @@ var open = function(number, message) {
 		nav.insertBefore(button_container, nav.firstChild);
 
 		// load chat
-		xhr('get', '/msgs/?to=' + number + '&from=' + my_number + '&date_sent_after=' + after, undefined, function(data) {
-			xhr('get', '/msgs/?from=' + number + '&to=' + my_number + '&date_sent_after=' + after, undefined, function(dataInner) {
-				// get all messages
-				var messages = data.concat(dataInner);
-
-				// sort by date
-				messages.sort(function(left, right) {
-					return new Date(left.date) - new Date(right.date);
-				});
-
-				// generate elements
-				messages.forEach(function(message) {
-					write(container, number, message, false);
-				});
-
-				if (container.scrollTop < container.clientHeight)
-					container.dispatchEvent(new Event('scroll'));
-			});
-		});
+		container.dispatchEvent(new Event('scroll'));
 
 		return container;
 	}
