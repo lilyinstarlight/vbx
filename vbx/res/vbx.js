@@ -11,7 +11,6 @@ var message = null;
 var message_number = null;
 var statusline = null;
 
-var initial = true;
 var last = null;
 var state = 'idle';
 
@@ -312,14 +311,8 @@ var load = function() {
 
 								scrolling = false;
 
-								if (record.scrollTop <= record.clientHeight) {
+								if (record.scrollTop <= record.clientHeight)
 									record.dispatchEvent(new Event('scroll'));
-								}
-								else if (initial) {
-									select(null);
-
-									initial = false;
-								}
 							});
 						});
 					});
@@ -797,6 +790,9 @@ var hangup = function() {
 };
 
 var select = function(id) {
+	if (id === null)
+		id = 'history';
+
 	if (id === 'toggle_phone') {
 		if (phone.style.display === 'none')
 			// behave as though phone were selected
