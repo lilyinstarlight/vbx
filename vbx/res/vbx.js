@@ -311,8 +311,18 @@ var load = function() {
 
 								scrolling = false;
 
-								if (record.scrollTop <= record.clientHeight)
-									record.dispatchEvent(new Event('scroll'));
+								if (last !== 'history') {
+									document.getElementById('history').style.display = '';
+
+									if (record.scrollTop <= record.clientHeight)
+										record.dispatchEvent(new Event('scroll'));
+
+									document.getElementById('history').style.display = 'none';
+								}
+								else {
+									if (record.scrollTop <= record.clientHeight)
+										record.dispatchEvent(new Event('scroll'));
+								}
 							});
 						});
 					});
@@ -324,8 +334,8 @@ var load = function() {
 		record.dispatchEvent(new Event('scroll'));
 	});
 
-	// select history
-	select('history');
+	// select nothing
+	select(null);
 
 	// show body
 	document.body.style.display = 'flex';
@@ -790,9 +800,6 @@ var hangup = function() {
 };
 
 var select = function(id) {
-	if (id === null)
-		id = 'history';
-
 	if (id === 'toggle_phone') {
 		if (phone.style.display === 'none')
 			// behave as though phone were selected
