@@ -75,7 +75,7 @@ class BrowserComponent:
                 for event in events:
                     if event.sid[:2] == 'CA':
                         if not send_call:
-                            if event.sid == current_call:
+                            if event.sid == current_call or current_call == 'null':
                                 send_call = True
 
                             continue
@@ -88,7 +88,7 @@ class BrowserComponent:
                         yield from asyncio.wait([ws.send(json.dumps(vbx.util.call_encode(event))) for ws in self.websockets])
                     elif event.sid[:2] == 'SM' or event.sid[:2] == 'MM':
                         if not send_message:
-                            if event.sid == current_message:
+                            if event.sid == current_message or current_message == 'null':
                                 send_message = True
 
                             continue

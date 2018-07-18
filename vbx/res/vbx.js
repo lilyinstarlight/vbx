@@ -259,16 +259,64 @@ var load = function() {
 								entries.forEach(function(ev) {
 									window.save(ev, true);
 
-									if ('status' in ev)
-										start_call = ev.sid;
-									else
-										start_message = ev.sid;
+									if ('status' in ev) {
+										if (start_call === null)
+											start_call = ev.sid;
+									}
+									else {
+										if (start_message === null)
+											start_message = ev.sid;
+									}
 								});
+
+								if (socket === null) {
+									// initiate socket updates
+									var connect = function(data) {
+										socket = new WebSocket(data.socket);
+										socket.addEventListener('close', function(ev) {
+											// try again in a few
+											setTimeout(function() {
+												// get another key
+												xhr('get', '/browser', undefined, function(data) {
+													connect(data);
+												});
+											}, 5000);
+										}, false);
+										socket.addEventListener('open', function(ev) {
+											// send secret key
+											socket.send(data.key);
+
+											// send last call and message
+											socket.send(start_call);
+											socket.send(start_message);
+										}, false);
+										socket.addEventListener('message', function(ev) {
+											var data = JSON.parse(ev.data);
+											window.save(data);
+
+											// check if message
+											if ('body' in data) {
+												var other = data.from === my_number ? data.to : data.from;
+
+												// display message
+												window.notify((data.from in contact ? contact[data.from] : data.from) + ': ' + data.body);
+												window.open(other, data);
+											}
+										}, false);
+									};
+
+									connect(data);
+								}
 
 								scrolling = false;
 
+								var selected = last;
+								select('history');
+
 								if (record.scrollTop <= record.clientHeight)
 									record.dispatchEvent(new Event('scroll'));
+
+								select(selected);
 							});
 						});
 					});
@@ -278,43 +326,6 @@ var load = function() {
 
 		// load history
 		record.dispatchEvent(new Event('scroll'));
-
-		// initiate socket updates
-		var connect = function(data) {
-			socket = new WebSocket(data.socket);
-			socket.addEventListener('close', function(ev) {
-				// try again in a few
-				setTimeout(function() {
-					// get another key
-					xhr('get', '/browser', undefined, function(data) {
-						connect(data);
-					});
-				}, 5000);
-			}, false);
-			socket.addEventListener('open', function(ev) {
-				// send secret key
-				socket.send(data.key);
-
-				// send latest data
-				socket.send(start_call);
-				socket.send(start_message);
-			}, false);
-			socket.addEventListener('message', function(ev) {
-				var data = JSON.parse(ev.data);
-				window.save(data);
-
-				// check if message
-				if ('body' in data) {
-					var other = data.from === my_number ? data.to : data.from;
-
-					// display message
-					window.notify((data.from in contact ? contact[data.from] : data.from) + ': ' + data.body);
-					window.open(other, data);
-				}
-			}, false);
-		};
-
-		connect(data);
 	});
 
 	// select nothing
