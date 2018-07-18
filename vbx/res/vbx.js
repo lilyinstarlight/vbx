@@ -9,9 +9,11 @@ var dial = null;
 var end = null;
 var message = null;
 var message_number = null;
+var statusline = null;
+
+var initial = true;
 var last = null;
 var state = 'idle';
-var statusline = null;
 
 var title = null;
 
@@ -310,13 +312,14 @@ var load = function() {
 
 								scrolling = false;
 
-								var selected = last;
-								select('history');
-
-								if (record.scrollTop <= record.clientHeight)
+								if (record.scrollTop <= record.clientHeight) {
 									record.dispatchEvent(new Event('scroll'));
+								}
+								else if (initial) {
+									select(null);
 
-								select(selected);
+									initial = false;
+								}
 							});
 						});
 					});
@@ -328,8 +331,8 @@ var load = function() {
 		record.dispatchEvent(new Event('scroll'));
 	});
 
-	// select nothing
-	select(null);
+	// select history
+	select('history');
 
 	// show body
 	document.body.style.display = 'flex';
