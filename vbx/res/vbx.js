@@ -311,18 +311,20 @@ var load = function() {
 
 								scrolling = false;
 
-								if (last !== 'history') {
-									document.getElementById('history').style.display = '';
+								setTimeout(function() {
+									if (last !== 'history') {
+										document.getElementById('history').style.display = '';
 
-									if (record.scrollTop <= record.clientHeight)
-										record.dispatchEvent(new Event('scroll'));
+										if (record.scrollTop <= record.clientHeight)
+											record.dispatchEvent(new Event('scroll'));
 
-									document.getElementById('history').style.display = 'none';
-								}
-								else {
-									if (record.scrollTop <= record.clientHeight)
-										record.dispatchEvent(new Event('scroll'));
-								}
+										document.getElementById('history').style.display = 'none';
+									}
+									else {
+										if (record.scrollTop <= record.clientHeight)
+											record.dispatchEvent(new Event('scroll'));
+									}
+								}, 50);
 							});
 						});
 					});
@@ -600,8 +602,10 @@ var open = function(number, message) {
 
 						scrolling = false;
 
-						if (container.scrollTop <= container.clientHeight)
-							container.dispatchEvent(new Event('scroll'));
+						setTimeout(function() {
+							if (container.scrollTop <= container.clientHeight)
+								container.dispatchEvent(new Event('scroll'));
+						}, 50);
 					});
 				});
 			}
