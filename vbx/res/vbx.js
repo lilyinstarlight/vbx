@@ -317,8 +317,8 @@ var load = function() {
 
 										if (record.scrollTop <= record.clientHeight)
 											record.dispatchEvent(new Event('scroll'));
-
-										document.getElementById('history').style.display = 'none';
+										else
+											document.getElementById('history').style.display = 'none';
 									}
 									else {
 										if (record.scrollTop <= record.clientHeight)
