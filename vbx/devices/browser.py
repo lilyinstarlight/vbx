@@ -75,7 +75,7 @@ class BrowserComponent:
                     send_call = False
                     send_message = False
                     for event in events:
-                        if event.from_ in ignored or event.to in ignored:
+                        if event.from_ in self.ignored or event.to in self.ignored:
                             continue
 
                         if event.sid[:2] == 'CA':
