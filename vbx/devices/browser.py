@@ -17,7 +17,8 @@ import vbx.util
 
 
 class BrowserComponent:
-    def __init__(self, timeout=0.5):
+    def __init__(self, ignored=[], timeout=0.5):
+        self.ignored = ignored
         self.timeout = timeout
 
         self.clients = multiprocessing.Value(ctypes.c_ubyte)
@@ -60,46 +61,50 @@ class BrowserComponent:
 
         try:
             while True:
-                last_call = None
-                wait_call = None
-                last_message = None
+                if self.websockets.index(websocket) == 0:
+                    last_call = None
+                    wait_call = None
+                    last_message = None
 
-                events = sorted(list(itertools.chain(
-                    self.twilio_client.calls.page(from_=self.vbx_config.number),
-                    self.twilio_client.calls.page(to=self.vbx_config.number),
-                    self.twilio_client.messages.page(from_=self.vbx_config.number),
-                    self.twilio_client.messages.page(to=self.vbx_config.number))), key=lambda obj: obj.date_created)
+                    events = sorted(list(itertools.chain(
+                        self.twilio_client.calls.page(from_=self.vbx_config.number),
+                        self.twilio_client.calls.page(to=self.vbx_config.number),
+                        self.twilio_client.messages.page(from_=self.vbx_config.number),
+                        self.twilio_client.messages.page(to=self.vbx_config.number))), key=lambda obj: obj.date_created)
 
-                send_call = False
-                send_message = False
-                for event in events:
-                    if event.sid[:2] == 'CA':
-                        if not send_call:
-                            if event.sid == current_call or current_call == 'null':
-                                send_call = True
-
+                    send_call = False
+                    send_message = False
+                    for event in events:
+                        if event.from_ in ignored or event.to in ignored:
                             continue
 
-                        if not wait_call and (event.status == 'queued' or event.status == 'ringing' or event.status == 'in-progress'):
-                            wait_call = event.sid
+                        if event.sid[:2] == 'CA':
+                            if not send_call:
+                                if event.sid == current_call or current_call == 'null':
+                                    send_call = True
 
-                        last_call = event.sid
+                                continue
 
-                        yield from asyncio.wait([ws.send(json.dumps(vbx.util.call_encode(event))) for ws in self.websockets])
-                    elif event.sid[:2] == 'SM' or event.sid[:2] == 'MM':
-                        if not send_message:
-                            if event.sid == current_message or current_message == 'null':
-                                send_message = True
+                            if not wait_call and (event.status == 'queued' or event.status == 'ringing' or event.status == 'in-progress'):
+                                wait_call = event.sid
 
-                            continue
+                            last_call = event.sid
 
-                        last_message = event.sid
+                            yield from asyncio.wait([ws.send(json.dumps(vbx.util.call_encode(event))) for ws in self.websockets])
+                        elif event.sid[:2] == 'SM' or event.sid[:2] == 'MM':
+                            if not send_message:
+                                if event.sid == current_message or current_message == 'null':
+                                    send_message = True
 
-                        if not event.error_code:
-                            yield from asyncio.wait([ws.send(json.dumps(vbx.util.message_encode(event))) for ws in self.websockets])
+                                continue
 
-                    current_call = wait_call if wait_call else last_call
-                    current_message = last_message
+                            last_message = event.sid
+
+                            if not event.error_code:
+                                yield from asyncio.wait([ws.send(json.dumps(vbx.util.message_encode(event))) for ws in self.websockets])
+
+                        current_call = wait_call if wait_call else last_call
+                        current_message = last_message
 
                 yield from websocket.ping()
                 yield from asyncio.sleep(self.timeout)
@@ -135,13 +140,13 @@ master = False
 
 
 class Browser(vbx.Device):
-    def __init__(self):
+    def __init__(self, ignored=[]):
         global component
 
         if component:
             self.component = component
         else:
-            self.component = BrowserComponent()
+            self.component = BrowserComponent(ignored)
             component = self.component
 
     def start(self):
