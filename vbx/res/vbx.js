@@ -309,9 +309,9 @@ var load = function() {
 									connect(data);
 								}
 
-								scrolling = false;
-
 								setTimeout(function() {
+									scrolling = false;
+
 									if (last !== 'history') {
 										document.getElementById('history').style.display = '';
 
@@ -600,9 +600,9 @@ var open = function(number, message) {
 							write(container, number, message, true);
 						});
 
-						scrolling = false;
-
 						setTimeout(function() {
+							scrolling = false;
+
 							if (container.scrollTop <= container.clientHeight)
 								container.dispatchEvent(new Event('scroll'));
 						}, 50);
