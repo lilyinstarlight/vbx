@@ -25,6 +25,7 @@ var contact = {};
 var my_number = null;
 
 var token = null;
+var ignored = null;
 var connection = null;
 var incoming = null;
 
@@ -167,6 +168,9 @@ var load = function() {
 		// get token
 		token = data.token;
 
+		// get ignore list
+		ignored = data.ignored;
+
 		// setup Twilio.Device
 		Twilio.Device.setup(token);
 
@@ -248,7 +252,7 @@ var load = function() {
 
 								// filter out extra entries
 								entries = entries.filter(function(entry) {
-									return (entry.to !== 'client:vbx' && entry.from !== 'client:vbx') && (entry.direction === 'inbound' || entry.direction === 'outbound-api');
+									return (ignored.indexOf(entry.to) < 0 && ignored.indexOf(entry.from) < 0) && (entry.to !== 'client:vbx' && entry.from !== 'client:vbx') && (entry.direction === 'inbound' || entry.direction === 'outbound-api');
 								});
 
 								// sort by date

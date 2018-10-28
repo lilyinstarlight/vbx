@@ -48,7 +48,7 @@ class ListHandler(fooster.web.query.QueryMixIn, AccountHandler):
 
 class BrowserHandler(AccountHandler):
     def do_get(self):
-        return 200, {'number': vbx.config.number, 'token': token.to_jwt().decode(), 'socket': vbx.config.socket, 'key': vbx.devices.browser.component.gen()}
+        return 200, {'number': vbx.config.number, 'token': token.to_jwt().decode(), 'socket': vbx.config.socket, 'key': vbx.devices.browser.component.gen(), 'ignored': vbx.devices.browser.component.ignored}
 
 
 class OutgoingHandler(AccountHandler):
