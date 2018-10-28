@@ -641,6 +641,7 @@ var open = function(number, message) {
 		// create button
 		var button_container = document.createElement('div');
 		button_container.id = 'nav_' + number;
+		button_container.className = 'left';
 
 		var button = document.createElement('button');
 		button.id = 'button_' + number;
