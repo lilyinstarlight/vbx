@@ -19,26 +19,19 @@ template = os.path.dirname(__file__) + '/html'
 resource = os.path.dirname(__file__) + '/res'
 
 # account sid and auth token
-auth = ('AC0123456789abcdef0123456789abcdef', '0123456789abcdef0123456789abcdef')
+auth = ('', '')
 
 # app sid
-app = 'AP0123456789abcdef0123456789abcdef'
+app = ''
 
 # number from account to use
-number = '+18001234567'
+number = ''
 
 # call flows (make sure they connect properly by key)
-calls = {
-    'default': [vbx.flows.Device(devices=[vbx.devices.Browser()], next='phone')],
-    'phone': [vbx.flows.Dial(number='+18005555555')],
-}
+calls = {}
 
 # message flows (make sure they connect properly by key)
-messages = {
-    'default': [vbx.flows.Device(devices=[vbx.devices.Browser(), vbx.devices.SMS(number='+18005555555')])],
-}
+messages = {}
 
 # contacts
-contacts = {
-    '+18005555555': 'BusinessName'
-}
+contacts = {}
