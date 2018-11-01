@@ -304,7 +304,8 @@ var load = function() {
 												var other = data.from === my_number ? data.to : data.from;
 
 												// display message
-												window.notify((data.from in contact ? contact[data.from] : data.from) + ': ' + data.body);
+												if (data.from !== my_number)
+													window.notify((data.from in contact ? contact[data.from] : data.from) + ': ' + data.body);
 												window.open(other, data);
 											}
 										}, false);
