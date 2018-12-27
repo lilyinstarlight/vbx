@@ -108,7 +108,7 @@ class BrowserComponent:
                         current_call = wait_call if wait_call else last_call
                         current_message = last_message
 
-                        start_time = last_message.date if last_message.date > last_call.date else last_call.date
+                        start_time = event.date_created
 
                 yield from websocket.ping()
                 yield from asyncio.sleep(self.timeout)
