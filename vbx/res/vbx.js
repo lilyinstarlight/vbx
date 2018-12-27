@@ -324,7 +324,6 @@ var load = function() {
 											record.dispatchEvent(new Event('scroll'));
 										}
 										else {
-											document.getElementById('loading').style.display = 'none';
 											document.getElementById('history').style.display = 'none';
 
 											document.getElementById('button_phone').disabled = false;
