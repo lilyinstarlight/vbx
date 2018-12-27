@@ -320,10 +320,13 @@ var load = function() {
 									if (last !== 'history') {
 										document.getElementById('history').style.display = '';
 
-										if (record.scrollTop <= record.clientHeight)
+										if (record.scrollTop <= record.clientHeight) {
 											record.dispatchEvent(new Event('scroll'));
-										else
+										}
+										else {
+											document.getElementById('loading').style.display = 'none';
 											document.getElementById('history').style.display = 'none';
+										}
 									}
 									else {
 										if (record.scrollTop <= record.clientHeight)
