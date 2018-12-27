@@ -1,5 +1,6 @@
 import asyncio
 import ctypes
+import datetime
 import importlib
 import itertools
 import json
@@ -54,6 +55,7 @@ class BrowserComponent:
         current_call = yield from websocket.recv()
         current_message = yield from websocket.recv()
 
+        start_time = datetime.datetime.now() - datetime.timedelta(days=7)
         current_status = {}
 
         with self.clients.get_lock():
@@ -67,10 +69,10 @@ class BrowserComponent:
                     last_message = None
 
                     events = sorted(list(itertools.chain(
-                        self.twilio_client.calls.page(from_=self.vbx_config.number),
-                        self.twilio_client.calls.page(to=self.vbx_config.number),
-                        self.twilio_client.messages.page(from_=self.vbx_config.number),
-                        self.twilio_client.messages.page(to=self.vbx_config.number))), key=lambda obj: obj.date_created)
+                        self.twilio_client.calls.page(from_=self.vbx_config.number, start_time_after=start_time),
+                        self.twilio_client.calls.page(to=self.vbx_config.number, start_time_after=start_time),
+                        self.twilio_client.messages.page(from_=self.vbx_config.number, date_sent_after=start_time),
+                        self.twilio_client.messages.page(to=self.vbx_config.number, date_sent_after=start_time))), key=lambda obj: obj.date_created)
 
                     send_call = False
                     send_message = False
@@ -105,6 +107,8 @@ class BrowserComponent:
 
                         current_call = wait_call if wait_call else last_call
                         current_message = last_message
+
+                        start_time = last_message.date if last_message.date > last_call.date else last_call.date
 
                 yield from websocket.ping()
                 yield from asyncio.sleep(self.timeout)
