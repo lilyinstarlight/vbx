@@ -279,6 +279,10 @@ button {
 	cursor: pointer;
 }
 
+button:disabled {
+	background: #111;
+}
+
 button:hover {
 	background: #555;
 }

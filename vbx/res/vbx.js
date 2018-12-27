@@ -326,6 +326,11 @@ var load = function() {
 										else {
 											document.getElementById('loading').style.display = 'none';
 											document.getElementById('history').style.display = 'none';
+
+											document.getElementById('button_phone').disabled = false;
+											document.getElementById('button_message').disabled = false;
+											document.getElementById('button_contacts').disabled = false;
+											document.getElementById('button_history').disabled = false;
 										}
 									}
 									else {
