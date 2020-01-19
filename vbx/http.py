@@ -1,6 +1,5 @@
-import datetime
-
 import twilio.base.values
+import twilio.base.exceptions
 import twilio.rest
 import twilio.jwt.client
 
@@ -17,8 +16,8 @@ import vbx.devices.browser
 import vbx.util
 
 
-alias = '(?P<alias>[a-zA-Z0-9._-]+)'
-query = '(?:\?(?P<query>[\w=&+.:%-]*))?'
+alias = r'(?P<alias>[a-zA-Z0-9._-]+)'
+query = r'(?:\?(?P<query>[\w=&+.:%-]*))?'
 
 http = None
 
@@ -54,8 +53,7 @@ class BrowserHandler(AccountHandler):
 class OutgoingHandler(AccountHandler):
     def do_post(self):
         try:
-            body = self.request.body['body']
-            media_url = vbx.util.get_media_url(body.split(' ', 1)[0], twilio.base.values.unset)
+            body, media_url = vbx.util.get_split_media(self.request.body['body'])
 
             message = client.messages.create(self.request.body['to'], body=body, from_=vbx.config.number, media_url=media_url)
 
@@ -95,7 +93,7 @@ class CallHandler(AccountHandler):
             call = client.calls.get(self.groups['alias'])
 
             return 200, vbx.util.call_encode(call.fetch())
-        except:
+        except twilio.base.exceptions.TwilioRestException:
             raise fooster.web.HTTPError(404)
 
     def do_delete(self):
@@ -105,7 +103,7 @@ class CallHandler(AccountHandler):
             call.delete()
 
             return 204, ''
-        except:
+        except twilio.base.exceptions.TwilioRestException:
             raise fooster.web.HTTPError(404)
 
 
@@ -127,7 +125,7 @@ class MessageHandler(AccountHandler):
             message = client.messages.get(self.groups['alias'])
 
             return 200, vbx.util.message_encode(message.fetch())
-        except:
+        except twilio.base.exceptions.TwilioRestException:
             raise fooster.web.HTTPError(404)
 
     def do_delete(self):
@@ -137,7 +135,7 @@ class MessageHandler(AccountHandler):
             message.delete()
 
             return 204, ''
-        except:
+        except twilio.base.exceptions.TwilioRestException:
             raise fooster.web.HTTPError(404)
 
 
@@ -176,10 +174,10 @@ routes.update(fooster.web.file.new(vbx.config.resource, '/res'))
 error_routes.update(fooster.web.json.new_error())
 
 
-def start():
+def start(sync=None):
     global http
 
-    http = fooster.web.HTTPServer(vbx.config.addr, routes, error_routes)
+    http = fooster.web.HTTPServer(vbx.config.addr, routes, error_routes, sync=sync)
     http.start()
 
 

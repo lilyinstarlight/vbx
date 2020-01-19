@@ -11,6 +11,10 @@ class Device(vbx.Flow):
         for device in self.devices:
             device.start()
 
+    def stop(self):
+        for device in self.devices:
+            device.stop()
+
     def dial(self, event, response):
         for device in self.devices:
             if device.online():

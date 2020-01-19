@@ -6,7 +6,7 @@ import vbx
 import vbx.config
 
 
-number = re.compile("^[\d\+\-\(\) ]+$")
+number = re.compile(r'^[\d\+\-\(\) ]+$')
 
 
 class Call(vbx.Event):

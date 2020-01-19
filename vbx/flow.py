@@ -5,7 +5,7 @@ class Flow:
         self.completed = False
 
     def dial(self, event, response):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def send(self, event, message, response):
-        raise NotImplementedError
+        raise NotImplementedError()

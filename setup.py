@@ -10,7 +10,7 @@ version = None
 
 
 def find(haystack, *needles):
-    regexes = [(index, re.compile("^{}\s*=\s*'([^']*)'$".format(needle))) for index, needle in enumerate(needles)]
+    regexes = [(index, re.compile(r'^{}\s*=\s*[\'"]([^\'"]*)[\'"]$'.format(needle))) for index, needle in enumerate(needles)]
     values = ['' for needle in needles]
 
     for line in haystack:
@@ -39,7 +39,7 @@ setup(
     url='https://github.com/fkmclane/vbx',
     author='Foster McLane',
     author_email='fkmclane@gmail.com',
-    install_requires=['fooster-web', 'twilio', 'slixmpp', 'websockets'],
+    install_requires=['fooster-web', 'twilio', 'websockets', 'slixmpp'],
     packages=find_packages(),
     package_data={'': ['html/*.*', 'res/*.*']},
     entry_points = {'console_scripts': ['vbx = vbx.__main__:main']},

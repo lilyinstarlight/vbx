@@ -45,4 +45,4 @@ class Event:
             self.to_country = None
 
     def handle(self, flow):
-        raise NotImplementedError
+        raise NotImplementedError()

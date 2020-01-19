@@ -20,9 +20,9 @@ class Email(vbx.Device):
         msg = MIMEMultipart()
 
         if event.from_ in vbx.config.contacts:
-            from_ = vbx.config.contacts[events.from_]
+            from_ = vbx.config.contacts[event.from_]
         else:
-            from_ = events.from_
+            from_ = event.from_
 
         msg['Subject'] = 'SMS From {}'.format(from_)
         msg['From'] = self.from_
