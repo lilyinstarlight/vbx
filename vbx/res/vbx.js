@@ -305,7 +305,7 @@ var load = function() {
 
 												// display message
 												if (data.from !== my_number)
-													window.notify((data.from in contact ? contact[data.from] : data.from) + ': ' (data.media_url !== null ? '[media] ' : '') + data.body);
+													window.notify((data.from in contact ? contact[data.from] : data.from) + ': ' + (data.media_url !== null ? '[media] ' : '') + data.body);
 												window.open(other, data);
 											}
 										}, false);
