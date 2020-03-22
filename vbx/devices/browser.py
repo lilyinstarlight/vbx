@@ -5,7 +5,7 @@ import importlib
 import itertools
 import json
 import multiprocessing
-import random
+import secrets
 import string
 
 import twilio
@@ -149,7 +149,7 @@ class BrowserComponent:
 
     def gen(self):
         with self.key.get_lock():
-            self.key.value = ''.join(random.choice(string.ascii_letters) for _ in range(16)).encode('ascii')
+            self.key.value = ''.join(secrets.choice(string.ascii_letters) for _ in range(16)).encode('ascii')
 
             return self.key.value.decode('ascii')
 
