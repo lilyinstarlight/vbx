@@ -174,21 +174,21 @@ var load = function() {
 		// setup Twilio.Device
 		Twilio.Device.setup(token);
 
-		Twilio.Device.connect(function(conn) {
+		Twilio.Device.on('connect', function(conn) {
 			state = 'connected';
 			statusline.innerText = 'Connected.';
 			dial.innerText = '---';
 			end.innerText = 'Hangup';
 		});
 
-		Twilio.Device.disconnect(function(conn) {
+		Twilio.Device.on('disconnect', function(conn) {
 			state = 'idle';
 			statusline.innerText = 'Dial a Number...';
 			dial.innerText = 'Dial';
 			end.innerText = '---';
 		});
 
-		Twilio.Device.incoming(function(conn) {
+		Twilio.Device.on('incoming', function(conn) {
 			state = 'incoming';
 
 			incoming = conn;
@@ -209,7 +209,7 @@ var load = function() {
 			select('phone');
 		});
 
-		Twilio.Device.cancel(function(conn) {
+		Twilio.Device.on('cancel', function(conn) {
 			state = 'idle';
 			statusline.innerText = 'Dial a Number...';
 			dial.innerText = 'Dial';
@@ -219,7 +219,7 @@ var load = function() {
 			select(last);
 		});
 
-		Twilio.Device.offline(function(device) {
+		Twilio.Device.on('offline', function(device) {
 			// try again in a few
 			setTimeout(function() {
 				// get another token
