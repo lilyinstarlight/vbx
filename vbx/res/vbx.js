@@ -363,9 +363,7 @@ var load = function() {
 	var scroll = test.offsetWidth - test.clientWidth;
 	document.body.removeChild(test);
 
-	var scrollfix = document.createElement('style');
-	scrollfix.innerHTML = '.history table td:last-child > button, .contacts table td:last-child > button { width: calc(8em - ' + scroll + 'px); }';
-	document.head.appendChild(scrollfix);
+	document.getElementById('scrollfix').sheet.insertRule('.history table td:last-child > button, .contacts table td:last-child > button { width: calc(8em - ' + scroll.toString() + 'px); }');
 };
 
 var save = function(ev, prepend) {
