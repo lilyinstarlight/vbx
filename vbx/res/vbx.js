@@ -12,7 +12,7 @@ var message_number = null;
 var statusline = null;
 
 var last = null;
-var state = 'idle';
+var state = 'init';
 
 var title = null;
 
@@ -324,12 +324,18 @@ var load = function() {
 											record.dispatchEvent(new Event('scroll'));
 										}
 										else {
-											document.getElementById('history').style.display = 'none';
+											if (state === 'init') {
+												document.getElementById('history').style.display = 'none';
 
-											document.getElementById('button_phone').disabled = false;
-											document.getElementById('button_message').disabled = false;
-											document.getElementById('button_contacts').disabled = false;
-											document.getElementById('button_history').disabled = false;
+												document.getElementById('button_phone').disabled = false;
+												document.getElementById('button_message').disabled = false;
+												document.getElementById('button_contacts').disabled = false;
+												document.getElementById('button_history').disabled = false;
+
+												state = 'idle';
+
+												main.children[0].remove();
+											}
 										}
 									}
 									else {
